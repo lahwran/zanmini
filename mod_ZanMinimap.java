@@ -9,6 +9,8 @@ import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.management.RuntimeErrorException;
+
 import net.lahwran.zanminimap.BlockColor;
 import net.lahwran.zanminimap.TintType;
 import net.lahwran.zanminimap.Waypoint;
@@ -18,16 +20,16 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
-public class mod_ZanMinimap extends BaseMod implements Runnable {
+public class mod_ZanMinimap implements Runnable {
     // TODO: update
     /** Polygon creation class */
-    public na lDraw = na.a;
+    public ns lDraw = ns.a;
 
     /** Font rendering class */
-    public rf lang;
+    public se lang;
 
     /** Render texture */
-    public ip renderEngine;
+    public jf renderEngine;
 
     public static File getAppDir(String app)
     {
@@ -36,17 +38,18 @@ public class mod_ZanMinimap extends BaseMod implements Runnable {
 
     public void chatInfo(String s)
     {
-        game.u.a(s);
+        game.v.a(s);
     }
 
     public String getMapName()
     {
-        return game.e.s.j();
+        return game.f.x.j();
+        //return game.f.s.j();
     }
 
     public String getServerName()
     {
-        return game.y.C;
+        return game.z.C;
     }
 
     public void drawPre()
@@ -81,25 +84,24 @@ public class mod_ZanMinimap extends BaseMod implements Runnable {
 
     public int getMouseX(int scWidth)
     {
-        return Mouse.getX() * (scWidth + 5) / game.c;
+        return Mouse.getX() * (scWidth + 5) / game.d;
     }
 
     public int getMouseY(int scHeight)
     {
-        return (scHeight + 5) - Mouse.getY() * (scHeight + 5) / this.game.d - 1;
+        return (scHeight + 5) - Mouse.getY() * (scHeight + 5) / this.game.e - 1;
     }
 
     public void setMenuNull()
     {
-        game.q = null;
+        game.r = null;
     }
 
     public Object getMenu()
     {
-        return game.q;
+        return game.r;
     }
 
-    @Override
     public void OnTickInGame(Minecraft mc)
     {
         if (game == null) game = mc;
@@ -112,7 +114,7 @@ public class mod_ZanMinimap extends BaseMod implements Runnable {
                 zCalc = new Thread(this);
                 zCalc.start();
             }
-            if (!(this.game.q instanceof ca) && !(this.game.q instanceof pi) && (this.game.g.p != -1) && this.game.q != null)
+            if (this.game.r != null && !(this.game.r instanceof cf) && !(this.game.r instanceof qd))
                 try
                 {
                     this.zCalc.notify();
@@ -127,21 +129,21 @@ public class mod_ZanMinimap extends BaseMod implements Runnable {
                     mapCalc();
         }
 
-        if (lang == null) lang = this.game.p;
+        if (lang == null) lang = this.game.q;
 
-        if (renderEngine == null) renderEngine = this.game.o;
+        if (renderEngine == null) renderEngine = this.game.p;
 
-        pr scSize = new pr(game.y, game.c, game.d);
+        qm scSize = new qm(game.z, game.d, game.e);
         int scWidth = scSize.a();
         int scHeight = scSize.b();
 
-        if (Keyboard.isKeyDown(menuKey) && this.game.q == null)
+        if (Keyboard.isKeyDown(menuKey) && this.game.r == null)
         {
             this.iMenu = 2;
-            this.game.a(new cs());
+            this.game.a(new cy());
         }
 
-        if (Keyboard.isKeyDown(zoomKey) && this.game.q == null)
+        if (Keyboard.isKeyDown(zoomKey) && this.game.r == null)
         {
             this.SetZoom();
         }
@@ -152,13 +154,13 @@ public class mod_ZanMinimap extends BaseMod implements Runnable {
         {
             if (!welcome) this.iMenu = 0;
         }
+        if (this.game.r == null && this.iMenu > 1) this.iMenu = 0;
 
-        if ((this.game.q instanceof oa) || (Keyboard.isKeyDown(61)) || (this.game.g.p == -1))
+        if ((this.game.r instanceof ov) ^ (Keyboard.isKeyDown(Keyboard.KEY_F6)))
             this.enabled = false;
         else
             this.enabled = true;
 
-        if (this.game.q == null && this.iMenu > 1) this.iMenu = 0;
 
         scWidth -= 5;
         scHeight -= 5;
@@ -222,22 +224,22 @@ public class mod_ZanMinimap extends BaseMod implements Runnable {
 
     private int xCoord()
     {
-        return (int)(this.game.g.aK < 0.0D ? this.game.g.aK - 1 : this.game.g.aK);
+        return (int)(this.game.h.aL < 0.0D ? this.game.h.aL - 1 : this.game.h.aL);
     }
 
     private int yCoord()
     {
-        return (int)(this.game.g.aM < 0.0D ? this.game.g.aM - 1 : this.game.g.aM);
+        return (int)(this.game.h.aN < 0.0D ? this.game.h.aN - 1 : this.game.h.aN);
     }
 
     private int zCoord()
     {
-        return (int)this.game.g.aL;
+        return (int)this.game.h.aM;
     }
 
     private float radius()
     {
-        return this.game.g.aQ;
+        return this.game.h.aR;
     }
 
     private String dCoord(int paramInt1)
@@ -255,7 +257,8 @@ public class mod_ZanMinimap extends BaseMod implements Runnable {
 
     private int img(String paramStr)
     {
-        return this.renderEngine.a(paramStr);
+        //TODO: is this correct?
+        return this.renderEngine.b(paramStr);
     }
 
     private void disp(int paramInt)
@@ -263,9 +266,9 @@ public class mod_ZanMinimap extends BaseMod implements Runnable {
         this.renderEngine.b(paramInt);
     }
 
-    public et getWorld()
+    public fb getWorld()
     {
-        return game.e;
+        return game.f;
     }
 
     // Yourself came up with this, I'm sure it makes sense to someone
@@ -281,7 +284,7 @@ public class mod_ZanMinimap extends BaseMod implements Runnable {
         return res;
     }
 
-    public int getBlockTint(et world, int original, int x, int y, int z, TintType ttype)
+    public int getBlockTint(fb world, int original, int x, int y, int z, TintType ttype)
     {
         double temperature = 0.0;
         double humidity = 0.0;
@@ -299,7 +302,7 @@ public class mod_ZanMinimap extends BaseMod implements Runnable {
                 // return ColorizerGrass.
                 try
                 {
-                    return colorMult(original, hl.a(temperature, humidity));
+                    return colorMult(original, hx.a(temperature, humidity));
                 }
                 catch (Throwable t)
                 {
@@ -313,7 +316,7 @@ public class mod_ZanMinimap extends BaseMod implements Runnable {
                 try
                 {
                     // return ColorizerFoliage.getFoliageColor
-                    return colorMult(original, io.a(temperature, humidity));
+                    return colorMult(original, je.a(temperature, humidity));
                 }
                 catch (Throwable t)
                 {
@@ -321,9 +324,9 @@ public class mod_ZanMinimap extends BaseMod implements Runnable {
                     t.printStackTrace();
                 }
             case PINE:
-                return colorMult(original, io.a());
+                return colorMult(original, je.a());
             case BIRCH:
-                return colorMult(original, io.b());
+                return colorMult(original, je.b());
             case REDSTONE:
                 int blockmeta = world.e(x, y, z);
                 // TODO: this could be integer math, instead of going to/from
@@ -351,29 +354,30 @@ public class mod_ZanMinimap extends BaseMod implements Runnable {
         }
     }
 
-    private final int getBlockHeight(et world, int x, int z, int starty)
+    private final int getBlockHeight(fb world, int x, int z, int starty)
     {
         // return world.b(x, z).b(x & 0xf, z & 0xf);
-        kq chunk = world.b(x, z);
-        int y = starty;
+        
+        li chunk = world.b(x, z);
+        int y = (int)(game.h.aM); //starty;
         x &= 0xf;
         z &= 0xf;
 
-        while (y > 0)
-        {
+        //while (y > 0)
+       // {
             int id = chunk.a(x, y, z);
             int meta = chunk.b(x, y, z);
 
             if (getBlockColor(id, meta).alpha == 0)
-                y--;
+                return -1;//y--;
             else
                 return y + 1; // what
-        }
+       //}
 
-        return -1;
+        //return -1;
     }
 
-    private final int getBlockHeight(et world, int x, int z)
+    private final int getBlockHeight(fb world, int x, int z)
     {
         return getBlockHeight(world, x, z, 127);
     }
@@ -382,7 +386,7 @@ public class mod_ZanMinimap extends BaseMod implements Runnable {
     {
         try
         {
-            et data = getWorld();
+            fb data = getWorld();
             this.lZoom = this.zoom;
             int multi = (int)Math.pow(2, this.lZoom);
             int startX = this.xCoord();
@@ -409,7 +413,7 @@ public class mod_ZanMinimap extends BaseMod implements Runnable {
                     {
                         if (this.color)
                         {
-                            if ((data.f(startX + imageY, height, startZ - imageX) == kr.s) || (data.f(startX + imageY, height, startZ - imageX) == kr.t))
+                            if ((data.f(startX + imageY, height, startZ - imageX) == lj.s) || (data.f(startX + imageY, height, startZ - imageX) == lj.t))
                                 color24 = 0xffffff;
                             else
                             {
@@ -479,7 +483,7 @@ public class mod_ZanMinimap extends BaseMod implements Runnable {
             if (threading)
             {
                 this.active = true;
-                while (this.game.g != null && this.game.g.p != -1 && active)
+                while (this.game.h != null && active)
                 {
                     if (this.enabled && !this.hide)
                         if (((this.lastX != this.xCoord()) || (this.lastZ != this.yCoord()) || (this.timer > 300)))
@@ -676,12 +680,12 @@ public class mod_ZanMinimap extends BaseMod implements Runnable {
 
     public boolean haveLoadedBefore;
 
-    public static mod_ZanMinimap instance;
+    public static ZanMinimap instance;
 
     public mod_ZanMinimap()
     {
 
-        ModLoader.SetInGameHook(this, true, false);
+        //ModLoader.SetInGameHook(this, true, false);
 
         instance = this;
         threading = false;
@@ -2049,12 +2053,6 @@ public class mod_ZanMinimap extends BaseMod implements Runnable {
         }
 
         this.fudge = 20;
-    }
-
-    @Override
-    public String Version()
-    {
-        return mcvers + " - " + zmodver;
     }
 
 }
