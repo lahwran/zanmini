@@ -365,8 +365,9 @@ public class ZanMinimap implements Runnable {
 
     private final int getBlockHeight(fb world, int x, int z, int starty)
     {
+        return world.d(x, z);
         // return world.b(x, z).b(x & 0xf, z & 0xf);
-        
+        /*
         li chunk = world.b(x, z);
         int y = (int)(game.h.aM); //starty;
         x &= 0xf;
@@ -382,7 +383,7 @@ public class ZanMinimap implements Runnable {
             else
                 return y + 1; // what
        //}
-
+*/
         //return -1;
     }
 
