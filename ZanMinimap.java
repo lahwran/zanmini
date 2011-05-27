@@ -286,19 +286,24 @@ public class ZanMinimap implements Runnable {
 
     public int getBlockTint(fb world, int original, int x, int y, int z, TintType ttype)
     {
+        if (true) return original; //blarg :<
         double temperature = 0.0;
         double humidity = 0.0;
         switch (ttype)
         {
             case GRASS:
                 // world.getWorldChunkManager().func_4069_a(i, k, 1, 1);
-                world.a().a(x, z, 1, 1);
+                synchronized (world)
+                {
+                    world.a().a(x, z, 1, 1);
                 // double d =
                 // iblockaccess.getWorldChunkManager().temperature[0];
-                temperature = world.a().a[0];
-                // double humidity =
-                // iblockaccess.getWorldChunkManager().humidity[0];
-                humidity = world.a().b[0];
+                
+                    temperature = world.a().a[0];
+                    // double humidity =
+                    // iblockaccess.getWorldChunkManager().humidity[0];
+                    humidity = world.a().b[0];
+                }
                 // return ColorizerGrass.
                 try
                 {
@@ -310,9 +315,12 @@ public class ZanMinimap implements Runnable {
                     t.printStackTrace();
                 }
             case FOLIAGE:
-                world.a().a(x, z, 1, 1);
-                temperature = world.a().a[0];
-                humidity = world.a().b[0];
+                synchronized(world)
+                {
+                    world.a().a(x, z, 1, 1);
+                    temperature = world.a().a[0];
+                    humidity = world.a().b[0];
+                }
                 try
                 {
                     // return ColorizerFoliage.getFoliageColor
@@ -328,6 +336,7 @@ public class ZanMinimap implements Runnable {
             case BIRCH:
                 return colorMult(original, je.b());
             case REDSTONE:
+                
                 int blockmeta = world.e(x, y, z);
                 // TODO: this could be integer math, instead of going to/from
                 // float
