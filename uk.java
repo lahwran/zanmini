@@ -22,7 +22,7 @@ public class uk extends tw {
     private boolean l;
     public float b;
     float c;
-    
+
     private ZanMinimap minimap = new ZanMinimap();
 
     public uk(Minecraft minecraft) {
@@ -53,7 +53,7 @@ public class uk extends tw {
         if(!g.z.A && iw1 != null && iw1.c == un.bb.bn)
             a(j1, k1);
 
-        float f2 = g.h.B + (g.h.A - g.h.B) * f1;
+        float f2 = g.h.C + (g.h.B - g.h.C) * f1;
 
         if(f2 > 0.0F)
             b(f2, j1, k1);
@@ -69,13 +69,13 @@ public class uk extends tw {
         GL11.glBlendFunc(775, 769);
         b(j1 / 2 - 7, k1 / 2 - 7, 0, 0, 16, 16);
         GL11.glDisable(3042);
-        boolean flag1 = (g.h.bx / 3) % 2 == 1;
+        boolean flag1 = (g.h.by / 3) % 2 == 1;
 
-        if(g.h.bx < 10)
+        if(g.h.by < 10)
             flag1 = false;
 
-        int l1 = g.h.X;
-        int i2 = g.h.Y;
+        int l1 = g.h.Y;
+        int i2 = g.h.Z;
         f.setSeed(h * 0x4c627);
 
         if(g.c.d()) {
@@ -125,8 +125,8 @@ public class uk extends tw {
             }
 
             if(g.h.a(lj.g)) {
-                int j3 = (int)Math.ceil(((double)(g.h.by - 2) * 10D) / 300D);
-                int k4 = (int)Math.ceil(((double)g.h.by * 10D) / 300D) - j3;
+                int j3 = (int)Math.ceil(((double)(g.h.bz - 2) * 10D) / 300D);
+                int k4 = (int)Math.ceil(((double)g.h.bz * 10D) / 300D) - j3;
 
                 for(int k6 = 0; k6 < j3 + k4; k6++)
                     if(k6 < j3)
@@ -166,9 +166,15 @@ public class uk extends tw {
             GL11.glEnable(3008);
             GL11.glEnable(2929);
         }
+        minimap.OnTickInGame(g);
 
         if(g.z.B) {
-            se1.a((new StringBuilder()).append("Minecraft Beta 1.6.4 (").append(g.K).append(")").toString(), 2, 2, 0xffffff);
+            GL11.glPushMatrix();
+
+            if(Minecraft.H > 0L)
+                GL11.glTranslatef(0.0F, 32F, 0.0F);
+
+            se1.a((new StringBuilder()).append("Minecraft Beta 1.6.6 (").append(g.K).append(")").toString(), 2, 2, 0xffffff);
             se1.a(g.o(), 2, 12, 0xffffff);
             se1.a(g.p(), 2, 22, 0xffffff);
             se1.a(g.r(), 2, 32, 0xffffff);
@@ -181,11 +187,10 @@ public class uk extends tw {
             b(se1, s, j1 - se1.a(s) - 2, 2, 0xe0e0e0);
             s = (new StringBuilder()).append("Allocated memory: ").append((l5 * 100L) / l3).append("% (").append(l5 / 1024L / 1024L).append("MB)").toString();
             b(se1, s, j1 - se1.a(s) - 2, 12, 0xe0e0e0);
-            b(se1, (new StringBuilder()).append("x: ").append(g.h.aL).toString(), 2, 64, 0xe0e0e0);
-            b(se1, (new StringBuilder()).append("y: ").append(g.h.aM).toString(), 2, 72, 0xe0e0e0);
-            b(se1, (new StringBuilder()).append("z: ").append(g.h.aN).toString(), 2, 80, 0xe0e0e0);
-        } else {
-            se1.a("Minecraft Beta 1.6.4", 2, 2, 0xffffff);
+            b(se1, (new StringBuilder()).append("x: ").append(g.h.aM).toString(), 2, 64, 0xe0e0e0);
+            b(se1, (new StringBuilder()).append("y: ").append(g.h.aN).toString(), 2, 72, 0xe0e0e0);
+            b(se1, (new StringBuilder()).append("z: ").append(g.h.aO).toString(), 2, 80, 0xe0e0e0);
+            GL11.glPopMatrix();
         }
 
         if(j > 0) {
@@ -258,7 +263,6 @@ public class uk extends tw {
         GL11.glPopMatrix();
         GL11.glEnable(3008);
         GL11.glDisable(3042);
-        minimap.OnTickInGame(g);
     }
 
     private void a(int k, int i1) {

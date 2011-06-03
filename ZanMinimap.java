@@ -224,22 +224,22 @@ public class ZanMinimap implements Runnable {
 
     private int xCoord()
     {
-        return (int)(this.game.h.aL < 0.0D ? this.game.h.aL - 1 : this.game.h.aL);
+        return (int)(this.game.h.aM < 0.0D ? this.game.h.aM - 1 : this.game.h.aM);
     }
 
     private int yCoord()
     {
-        return (int)(this.game.h.aN < 0.0D ? this.game.h.aN - 1 : this.game.h.aN);
+        return (int)(this.game.h.aO < 0.0D ? this.game.h.aO - 1 : this.game.h.aO);
     }
 
     private int zCoord()
     {
-        return (int)this.game.h.aM;
+        return (int)this.game.h.aN;
     }
 
     private float radius()
     {
-        return this.game.h.aR;
+        return this.game.h.aS;
     }
 
     private String dCoord(int paramInt1)
