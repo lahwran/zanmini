@@ -12,6 +12,7 @@ import org.lwjgl.opengl.GL11;
 public class uk extends tw {
 
     private static ba d = new ba();
+    @SuppressWarnings("unchecked")
     private java.util.List e;
     private Random f;
     private Minecraft g;
@@ -25,6 +26,7 @@ public class uk extends tw {
 
     private ZanMinimap minimap = new ZanMinimap();
 
+    @SuppressWarnings("unchecked")
     public uk(Minecraft minecraft) {
         e = ((java.util.List) (new ArrayList()));
         f = new Random();
@@ -381,6 +383,7 @@ public class uk extends tw {
         e.clear();
     }
 
+    @SuppressWarnings("unchecked")
     public void a(String s) {
         int k;
 

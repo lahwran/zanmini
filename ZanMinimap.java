@@ -9,8 +9,6 @@ import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.management.RuntimeErrorException;
-
 import net.lahwran.zanminimap.BlockColor;
 import net.lahwran.zanminimap.TintType;
 import net.lahwran.zanminimap.Waypoint;
@@ -286,8 +284,8 @@ public class ZanMinimap implements Runnable {
 
     public int getBlockTint(fb world, int original, int x, int y, int z, TintType ttype)
     {
-        if (true) return original; //blarg :<
-        double temperature = 0.0;
+        /*if (true)*/ return original; //blarg :<
+        /*double temperature = 0.0;
         double humidity = 0.0;
         switch (ttype)
         {
@@ -360,12 +358,54 @@ public class ZanMinimap implements Runnable {
                 return colorMult(original, tint);
             default:
                 return original;
-        }
+        }*/
+    }
+
+    private final boolean blockIsSolid(li chunk, int x, int y, int z)
+    {
+        if (y>127) return false;
+        if (y<0) return true;
+        int id = chunk.a(x, y, z);
+        int meta = chunk.b(x, y, z);
+        return getBlockColor(id, meta).alpha > 0;
     }
 
     private final int getBlockHeight(fb world, int x, int z, int starty)
     {
-        return world.d(x, z);
+        if (cavemap)
+        {
+            li chunk = world.b(x, z);
+            x &= 0xf;
+            z &= 0xf;
+            int y = (int)(game.h.aN);
+            if(blockIsSolid(chunk, x, y, z))
+            {
+                int itery = y;
+                while(true)
+                {
+                    itery++;
+                    if(itery > y+10)
+                        return y+10;
+                    if(!blockIsSolid(chunk, x, itery, z))
+                    {
+                        return itery-1;
+                    }
+                }
+            }
+            while(y > -1)
+            {
+                y--;
+                if(blockIsSolid(chunk, x, y, z))
+                {
+                    return y;
+                }
+            }
+            return -1;
+        }
+        else
+        {
+            return world.d(x, z)-1;
+        }
         // return world.b(x, z).b(x & 0xf, z & 0xf);
         /*
         li chunk = world.b(x, z);
@@ -375,8 +415,7 @@ public class ZanMinimap implements Runnable {
 
         //while (y > 0)
        // {
-            int id = chunk.a(x, y, z);
-            int meta = chunk.b(x, y, z);
+            
 
             if (getBlockColor(id, meta).alpha == 0)
                 return -1;//y--;
@@ -423,12 +462,12 @@ public class ZanMinimap implements Runnable {
                     {
                         if (this.color)
                         {
-                            if ((data.f(startX + imageY, height, startZ - imageX) == lj.s) || (data.f(startX + imageY, height, startZ - imageX) == lj.t))
+                            if ((data.f(startX + imageY, height+1, startZ - imageX) == lj.s) || (data.f(startX + imageY, height+1, startZ - imageX) == lj.t))
                                 color24 = 0xffffff;
                             else
                             {
-                                BlockColor col = getBlockColor(data.a(startX + imageY, height - 1, startZ - imageX), data.e(startX + imageY, height - 1, startZ - imageX));
-                                color24 = getBlockTint(data, col.color, startX + imageY, height - 1, startZ - imageX, col.tintType);
+                                BlockColor col = getBlockColor(data.a(startX + imageY, height, startZ - imageX), data.e(startX + imageY, height, startZ - imageX));
+                                color24 = getBlockTint(data, col.color, startX + imageY, height, startZ - imageX, col.tintType);
                             }
 
                         }
@@ -440,7 +479,11 @@ public class ZanMinimap implements Runnable {
                     {
                         if (heightmap)
                         {
-                            int i2 = height - this.zCoord();
+                            int i2 = height;
+                            //if offsetByZloc
+                            i2 -= this.zCoord();
+                            //else
+                            //i2 -= 64;
                             double sc = Math.log10(Math.abs(i2) / 8.0D + 1.0D) / 1.3D;
                             int r = color24 / 0x10000;
                             int g = (color24 - r * 0x10000) / 0x100;
@@ -466,7 +509,7 @@ public class ZanMinimap implements Runnable {
                         int i3 = 255;
 
                         if (lightmap)
-                            i3 = data.a(startX + imageY, height, startZ - imageX, false) * 17;
+                            i3 = data.a(startX + imageY, height+1, startZ - imageX, false) * 17;
 
                         if (i3 > 255) i3 = 255;
 
@@ -597,10 +640,10 @@ public class ZanMinimap implements Runnable {
     public String error = "";
 
     /** Main Menu Option Count */
-    public int mmOptCount = 7;
+    public int mmOptCount = 10;
 
     /** Strings to show for menu */
-    public String[][] sMenu = new String[2][10];
+    public String[][] sMenu = new String[2][15];
 
     /** Time remaining to show error thrown for */
     public int ztimer = 0;
@@ -690,6 +733,10 @@ public class ZanMinimap implements Runnable {
 
     public boolean haveLoadedBefore;
 
+    public boolean netherpoints;
+
+    public boolean cavemap;
+
     public static ZanMinimap instance;
 
     public ZanMinimap()
@@ -721,6 +768,9 @@ public class ZanMinimap implements Runnable {
         this.sMenu[1][5] = "Square Map:";
         this.sMenu[1][6] = "Welcome Screen:";
         this.sMenu[1][7] = "Threading:";
+        this.sMenu[1][8] = "Color:";
+        this.sMenu[1][9] = "Netherpoints:";
+        this.sMenu[1][10] = "Cavemap:";
         settingsFile = new File(getAppDir("minecraft"), "zan.settings");
 
         try
@@ -750,6 +800,12 @@ public class ZanMinimap implements Runnable {
                         menuKey = Keyboard.getKeyIndex(curLine[1]);
                     else if (curLine[0].equals("Threading"))
                         threading = Boolean.parseBoolean(curLine[1]);
+                    else if (curLine[0].equals("Color"))
+                        color = Boolean.parseBoolean(curLine[1]);
+                    else if (curLine[0].equals("Netherpoints"))
+                        netherpoints = Boolean.parseBoolean(curLine[1]);
+                    else if (curLine[0].equals("Cavemap"))
+                        cavemap = Boolean.parseBoolean(curLine[1]);
 
                 }
                 in.close();
@@ -1003,6 +1059,9 @@ public class ZanMinimap implements Runnable {
             out.println("Zoom Key:" + Keyboard.getKeyName(zoomKey));
             out.println("Menu Key:" + Keyboard.getKeyName(menuKey));
             out.println("Threading:" + Boolean.toString(threading));
+            out.println("Color:" + Boolean.toString(color));
+            out.println("Netherpoints:" + Boolean.toString(netherpoints));
+            out.println("Cavemap:" + Boolean.toString(cavemap));
             // out.println("AprF:" +
             // Boolean.toString(haveLoadedBefore?aprilfools:true));
             out.close();
@@ -1181,8 +1240,8 @@ public class ZanMinimap implements Runnable {
                 {
                     if (pt.enabled)
                     {
-                        int wayX = this.xCoord() - pt.x;
-                        int wayY = this.yCoord() - pt.z;
+                        int wayX = this.xCoord() - (pt.x / (netherpoints ? 8 : 1));
+                        int wayY = this.yCoord() - (pt.z / (netherpoints ? 8 : 1));
                         float locate = (float)Math.toDegrees(Math.atan2(wayX, wayY));
                         double hypot = Math.sqrt((wayX * wayX) + (wayY * wayY)) / (Math.pow(2, this.zoom) / 2);
 
@@ -1217,8 +1276,8 @@ public class ZanMinimap implements Runnable {
                 {
                     if (pt.enabled)
                     {
-                        int wayX = this.xCoord() - pt.x;
-                        int wayY = this.yCoord() - pt.z;
+                        int wayX = this.xCoord() - (pt.x / (netherpoints ? 8 : 1));
+                        int wayY = this.yCoord() - (pt.z / (netherpoints ? 8 : 1));
                         float locate = (float)Math.toDegrees(Math.atan2(wayX, wayY));
                         double hypot = Math.sqrt((wayX * wayX) + (wayY * wayY)) / (Math.pow(2, this.zoom) / 2);
 
@@ -1965,6 +2024,9 @@ public class ZanMinimap implements Runnable {
         else if (i == 5)
             return welcome;
         else if (i == 6) return threading;
+        else if (i == 7) return color;
+        else if (i == 8) return netherpoints;
+        else if (i == 9) return cavemap;
         // TODO: else if (i==7) return aprilfools;
         throw new IllegalArgumentException("bad option number " + i);
     }
@@ -1985,6 +2047,12 @@ public class ZanMinimap implements Runnable {
             welcome = !welcome;
         else if (i == 6)
             threading = !threading;
+        else if (i == 7)
+            color = !color;
+        else if (i == 8)
+            netherpoints = !netherpoints;
+        else if (i == 9)
+            cavemap = !cavemap;
         // TODO: else if (i==7) aprilfools = !aprilfools;
         else
             throw new IllegalArgumentException("bad option number " + i);
