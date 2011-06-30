@@ -99,7 +99,53 @@ public class ZanMinimap implements Runnable {
     {
         return game.r;
     }
+    
+    public boolean isGameOver()
+    {
+        return getMenu() instanceof cf;
+    }
 
+    public boolean isConflictWarning()
+    {
+        return getMenu() instanceof qd;
+    }
+
+    public boolean isMenuShowing()
+    {
+        return this.game.r != null;
+    }
+
+    public void updateLang()
+    {
+        if (lang == null) lang = this.game.q;
+    }
+
+    public void updateRenderEngine()
+    {
+        if (renderEngine == null) renderEngine = this.game.p;
+    }
+
+    public int[] getScreenSize()
+    {
+        qm scSize = new qm(game.z, game.d, game.e);
+        return new int[] {scSize.a(), scSize.b()};
+    }
+
+    public void showGenericGui()
+    {
+        this.game.a(new cy());
+    }
+    
+    public boolean isIngameMenuUp()
+    {
+        return this.game.r instanceof ov;
+    }
+    
+    public boolean playerExists()
+    {
+        return this.game.h != null;
+    }
+    
     public void OnTickInGame(Minecraft mc)
     {
         if (game == null) game = mc;
@@ -112,7 +158,7 @@ public class ZanMinimap implements Runnable {
                 zCalc = new Thread(this);
                 zCalc.start();
             }
-            if (this.game.r != null && !(this.game.r instanceof cf) && !(this.game.r instanceof qd))
+            if (isMenuShowing() && !isGameOver() && !isConflictWarning())
                 try
                 {
                     this.zCalc.notify();
@@ -127,21 +173,22 @@ public class ZanMinimap implements Runnable {
                     mapCalc();
         }
 
-        if (lang == null) lang = this.game.q;
+        updateLang();
 
-        if (renderEngine == null) renderEngine = this.game.p;
+        updateRenderEngine();
 
-        qm scSize = new qm(game.z, game.d, game.e);
-        int scWidth = scSize.a();
-        int scHeight = scSize.b();
+        
+        int[] scSize = getScreenSize();
+        int scWidth = scSize[0];
+        int scHeight = scSize[1];
 
-        if (Keyboard.isKeyDown(menuKey) && this.game.r == null)
+        if (Keyboard.isKeyDown(menuKey) && !isMenuShowing())
         {
             this.iMenu = 2;
-            this.game.a(new cy());
+            showGenericGui();
         }
 
-        if (Keyboard.isKeyDown(zoomKey) && this.game.r == null)
+        if (Keyboard.isKeyDown(zoomKey) && !isMenuShowing())
         {
             this.SetZoom();
         }
@@ -154,7 +201,7 @@ public class ZanMinimap implements Runnable {
         }
         if (this.game.r == null && this.iMenu > 1) this.iMenu = 0;
 
-        if ((this.game.r instanceof ov) ^ (Keyboard.isKeyDown(Keyboard.KEY_F6)))
+        if ((isIngameMenuUp()) ^ (Keyboard.isKeyDown(Keyboard.KEY_F6)))
             this.enabled = false;
         else
             this.enabled = true;
@@ -222,22 +269,26 @@ public class ZanMinimap implements Runnable {
 
     private int xCoord()
     {
-        return (int)(this.game.h.aM < 0.0D ? this.game.h.aM - 1 : this.game.h.aM);
+        double posX = this.game.h.aM;
+        return (int)(posX < 0.0D ? posX - 1 : posX);
     }
 
     private int yCoord()
     {
-        return (int)(this.game.h.aO < 0.0D ? this.game.h.aO - 1 : this.game.h.aO);
+        double posZ = this.game.h.aO;
+        return (int)(posZ < 0.0D ? posZ - 1 : posZ);
     }
 
     private int zCoord()
     {
-        return (int)this.game.h.aN;
+        double posY = this.game.h.aN;
+        return (int)posY;
     }
 
     private float radius()
     {
-        return this.game.h.aS;
+        float rotationYaw = this.game.h.aS;
+        return rotationYaw;
     }
 
     private String dCoord(int paramInt1)
@@ -377,7 +428,7 @@ public class ZanMinimap implements Runnable {
             li chunk = world.b(x, z);
             x &= 0xf;
             z &= 0xf;
-            int y = (int)(game.h.aN);
+            int y = zCoord();
             if(blockIsSolid(chunk, x, y, z))
             {
                 int itery = y;
@@ -536,7 +587,7 @@ public class ZanMinimap implements Runnable {
             if (threading)
             {
                 this.active = true;
-                while (this.game.h != null && active)
+                while (playerExists() && active)
                 {
                     if (this.enabled && !this.hide)
                         if (((this.lastX != this.xCoord()) || (this.lastZ != this.yCoord()) || (this.timer > 300)))

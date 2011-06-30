@@ -24,7 +24,7 @@ public class uk extends tw {
     public float b;
     float c;
 
-    private ZanMinimap minimap = new ZanMinimap();
+    private ZanMinimap minimap = new ZanMinimap(); //TODO: update
 
     @SuppressWarnings("unchecked")
     public uk(Minecraft minecraft) {
@@ -168,7 +168,7 @@ public class uk extends tw {
             GL11.glEnable(3008);
             GL11.glEnable(2929);
         }
-        minimap.OnTickInGame(g);
+        minimap.OnTickInGame(g); //TODO: update
 
         if(g.z.B) {
             GL11.glPushMatrix();
