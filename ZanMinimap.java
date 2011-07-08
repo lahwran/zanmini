@@ -21,13 +21,13 @@ import org.lwjgl.opengl.GL11;
 public class ZanMinimap implements Runnable {
     // TODO: update
     /** Polygon creation class */
-    public ns lDraw = ns.a;
+    public nw lDraw = nw.a;
 
     /** Font rendering class */
-    public se lang;
+    public sj lang;
 
     /** Render texture */
-    public jf renderEngine;
+    public ji renderEngine;
 
     public static File getAppDir(String app)
     {
@@ -102,12 +102,12 @@ public class ZanMinimap implements Runnable {
     
     public boolean isGameOver()
     {
-        return getMenu() instanceof cf;
+        return getMenu() instanceof ch;
     }
 
     public boolean isConflictWarning()
     {
-        return getMenu() instanceof qd;
+        return getMenu() instanceof qh;
     }
 
     public boolean isMenuShowing()
@@ -127,18 +127,18 @@ public class ZanMinimap implements Runnable {
 
     public int[] getScreenSize()
     {
-        qm scSize = new qm(game.z, game.d, game.e);
+        qq scSize = new qq(game.z, game.d, game.e);
         return new int[] {scSize.a(), scSize.b()};
     }
 
     public void showGenericGui()
     {
-        this.game.a(new cy());
+        this.game.a(new da());
     }
     
     public boolean isIngameMenuUp()
     {
-        return this.game.r instanceof ov;
+        return this.game.r instanceof oz;
     }
     
     public boolean playerExists()
@@ -146,14 +146,45 @@ public class ZanMinimap implements Runnable {
         return this.game.h != null;
     }
     
+    public boolean safeToRun()
+    {
+        return game.i != null;
+    }
+    
+    public int getCurrentDimension()
+    {
+        if (!playerExists())
+            return lastdim;
+        return game.h.m;
+    }
+    
     public void OnTickInGame(Minecraft mc)
     {
         if (game == null) game = mc;
 
+        if (!safeToRun()) return;
+        
+        int dim = getCurrentDimension();
+        if(dim != lastdim)
+        {
+            cavemap = dim < 0;
+            lightmap = true;
+            heightmap = !cavemap;
+            netherpoints = cavemap;
+            lastdim = dim;
+            saveAll();
+            if(cavemap)
+            {
+                this.full = false;
+                this.zoom=1;
+                this.error = "Cavemap zoom (2.0x)";
+            }
+        }
+        
         if (threading)
         {
 
-            if (!zCalc.isAlive() && threading)
+            if (zCalc == null || !zCalc.isAlive() && threading)
             {
                 zCalc = new Thread(this);
                 zCalc.start();
@@ -168,7 +199,7 @@ public class ZanMinimap implements Runnable {
         }
         else if (!threading)
         {
-            if (this.enabled && !this.hide)
+            if (this.enabled && !this.hide )
                 if (((this.lastX != this.xCoord()) || (this.lastZ != this.yCoord()) || (this.timer > 300)))
                     mapCalc();
         }
@@ -294,9 +325,9 @@ public class ZanMinimap implements Runnable {
     private String dCoord(int paramInt1)
     {
         if (paramInt1 < 0)
-            return "-" + Math.abs(paramInt1 + 1);
+            return (netherpoints ? "n" : "") + "-" + Math.abs(paramInt1 + 1);
         else
-            return "+" + paramInt1;
+            return (netherpoints ? "n" : "") + "+" + paramInt1;
     }
 
     private int tex(BufferedImage paramImg)
@@ -315,7 +346,7 @@ public class ZanMinimap implements Runnable {
         this.renderEngine.b(paramInt);
     }
 
-    public fb getWorld()
+    public fd getWorld()
     {
         return game.f;
     }
@@ -333,7 +364,7 @@ public class ZanMinimap implements Runnable {
         return res;
     }
 
-    public int getBlockTint(fb world, int original, int x, int y, int z, TintType ttype)
+    public int getBlockTint(fd world, int original, int x, int y, int z, TintType ttype)
     {
         /*if (true)*/ return original; //blarg :<
         /*double temperature = 0.0;
@@ -412,7 +443,7 @@ public class ZanMinimap implements Runnable {
         }*/
     }
 
-    private final boolean blockIsSolid(li chunk, int x, int y, int z)
+    private final boolean blockIsSolid(lm chunk, int x, int y, int z)
     {
         if (y>127) return false;
         if (y<0) return true;
@@ -420,15 +451,31 @@ public class ZanMinimap implements Runnable {
         int meta = chunk.b(x, y, z);
         return getBlockColor(id, meta).alpha > 0;
     }
+    
+    private final float distance(int x1, int y1, int x2, int y2)
+    {
+        return (float)Math.sqrt(Math.pow(x2-x1, 2)+Math.pow(y2-y1,2));
+    }
 
-    private final int getBlockHeight(fb world, int x, int z, int starty)
+    private final int getBlockHeight(fd world, int x, int z, int starty)
     {
         if (cavemap)
         {
-            li chunk = world.b(x, z);
+            lm chunk = world.b(x, z);
+            cmdist.setSeed((x & 0xffff) | ((z & 0xffff) << 16));
+            float dist = distance(xCoord(),yCoord(), x, z);
+            int y = zCoord();
+            if (dist > 5)
+                y -= (cmdist.nextInt((int)(dist)) - ((int)dist/2));
             x &= 0xf;
             z &= 0xf;
-            int y = zCoord();
+            
+            
+            if(y < 0)
+                y = 0;
+            else if (y>127)
+                y=127;
+            
             if(blockIsSolid(chunk, x, y, z))
             {
                 int itery = y;
@@ -443,6 +490,7 @@ public class ZanMinimap implements Runnable {
                     }
                 }
             }
+            int origy = y;
             while(y > -1)
             {
                 y--;
@@ -477,16 +525,17 @@ public class ZanMinimap implements Runnable {
         //return -1;
     }
 
-    private final int getBlockHeight(fb world, int x, int z)
+    private final int getBlockHeight(fd world, int x, int z)
     {
         return getBlockHeight(world, x, z, 127);
     }
 
     private void mapCalc()
     {
+        if(!safeToRun()) return;
         try
         {
-            fb data = getWorld();
+            fd data = getWorld();
             this.lZoom = this.zoom;
             int multi = (int)Math.pow(2, this.lZoom);
             int startX = this.xCoord();
@@ -501,6 +550,7 @@ public class ZanMinimap implements Runnable {
             {
                 for (int imageX = 0; imageX < 32 * multi; imageX++)
                 {
+                    if(!safeToRun()) return;
                     color24 = 0;
                     boolean check = false;
 
@@ -511,9 +561,9 @@ public class ZanMinimap implements Runnable {
 
                     if ((check) || (showmap) || (this.full))
                     {
-                        if (this.color)
+                        if (this.color && !cavemap)
                         {
-                            if ((data.f(startX + imageY, height+1, startZ - imageX) == lj.s) || (data.f(startX + imageY, height+1, startZ - imageX) == lj.t))
+                            if ((data.f(startX + imageY, height+1, startZ - imageX) == ln.s) || (data.f(startX + imageY, height+1, startZ - imageX) == ln.t))
                                 color24 = 0xffffff;
                             else
                             {
@@ -523,7 +573,7 @@ public class ZanMinimap implements Runnable {
 
                         }
                         else
-                            color24 = 0xFFFFFF;
+                            color24 = 0x808080;
                     }
 
                     if ((color24 != 0xff00ff) && (color24 != 0) && ((check) || (showmap) || (this.full)))
@@ -559,13 +609,24 @@ public class ZanMinimap implements Runnable {
 
                         int i3 = 255;
 
-                        if (lightmap)
+                        if (lightmap || cavemap)
                             i3 = data.a(startX + imageY, height+1, startZ - imageX, false) * 17;
-
+                        int min = 32;
+                        if(i3 < min)
+                        {
+                            i3 = min;
+                            if (cavemap)
+                                color24 = 0x222222;
+                        }
+                        if(!lightmap)
+                        {
+                            i3 *= 0.5;
+                            i3 += 64;
+                        }
+                        else if(cavemap)
+                            i3 *= 1.3f;
+                        
                         if (i3 > 255) i3 = 255;
-
-                        if (i3 < 32) i3 = 32;
-
                         color24 = i3 * 0x1000000 + color24;
                     }
 
@@ -590,7 +651,7 @@ public class ZanMinimap implements Runnable {
                 while (playerExists() && active)
                 {
                     if (this.enabled && !this.hide)
-                        if (((this.lastX != this.xCoord()) || (this.lastZ != this.yCoord()) || (this.timer > 300)))
+                        if (((this.lastX != this.xCoord()) || (this.lastZ != this.yCoord()) || (this.timer > 300)) && safeToRun())
                             try
                             {
                                 this.mapCalc();
@@ -636,6 +697,8 @@ public class ZanMinimap implements Runnable {
     // END UPDATE TODO SECTION
 
     public Minecraft game;
+    
+    public Random cmdist = new Random();
 
     /** Textures for each zoom level */
     public BufferedImage[] map = new BufferedImage[4];
@@ -659,6 +722,9 @@ public class ZanMinimap implements Runnable {
 
     /** Toggle full screen map */
     public boolean full = false;
+    
+    /** last dimension we rendered the map in */
+    public int lastdim = 0;
 
     /** Is map calc thread still executing? */
     public boolean active = false;
@@ -667,10 +733,10 @@ public class ZanMinimap implements Runnable {
     public int zoom = 2;
 
     /** Current build version */
-    public String zmodver = "v0.9.8";
+    public String zmodver = "v0.10.4";
 
     /** Minecraft version that we'll work with */
-    public static final String mcvers = "1.5_01";
+    public static final String mcvers = "1.7.3";
 
     /** Menu input string */
     public String inStr = "";
@@ -760,7 +826,7 @@ public class ZanMinimap implements Runnable {
     public boolean showmap = false;
 
     /** Show coordinates toggle */
-    public boolean coords = false;
+    public boolean coords = true;
 
     /** Dynamic lighting toggle */
     public boolean lightmap = true;
@@ -786,7 +852,7 @@ public class ZanMinimap implements Runnable {
 
     public boolean netherpoints;
 
-    public boolean cavemap;
+    public boolean cavemap = false;
 
     public static ZanMinimap instance;
 
@@ -858,6 +924,18 @@ public class ZanMinimap implements Runnable {
                     else if (curLine[0].equals("Cavemap"))
                         cavemap = Boolean.parseBoolean(curLine[1]);
 
+                    if(cavemap && !(lightmap ^ heightmap))
+                    {
+                        lightmap = true;
+                        heightmap = false;
+                    }
+
+                    if(cavemap)
+                    {
+                        this.full = false;
+                        this.zoom=1;
+                        this.error = "Cavemap zoom (2.0x)";
+                    }
                 }
                 in.close();
             }
@@ -1399,6 +1477,18 @@ public class ZanMinimap implements Runnable {
         }
     }
 
+    public int toInt(String str)
+    {
+        if(str.startsWith("n"))
+        {
+            return Integer.parseInt(str.substring(1)) * 8;
+        }
+        else
+        {
+            return Integer.parseInt(str);
+        }
+    }
+    
     private void showMenu(int scWidth, int scHeight)
     {
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
@@ -1588,8 +1678,8 @@ public class ZanMinimap implements Runnable {
             String verify = " !\"#$%&'()*+,-./0123456789;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_'abcdefghijklmnopqrstuvwxyz{|}~⌂ÇüéâäàåçêëèïîìÄÅÉæÆôöòûùÿÖÜø£Ø×ƒáíóúñÑªº¿®¬½¼¡«»";
 
             if (this.iMenu > 5 && this.inStr.equals(""))
-                verify = "-0123456789";
-            else if (this.iMenu > 5) verify = "0123456789";
+                verify = "-0123456789n";
+            else if (this.iMenu > 5) verify = "0123456789n";
 
             if (Keyboard.getEventKeyState())
             {
@@ -1602,7 +1692,7 @@ public class ZanMinimap implements Runnable {
                         {
                             this.next = 6;
                             this.way = this.inStr;
-                            this.inStr = Integer.toString(this.xCoord());
+                            this.inStr = (netherpoints ? "n" : "") + Integer.toString(this.xCoord());
                         }
                         else if (this.iMenu == 6)
                         {
@@ -1610,14 +1700,14 @@ public class ZanMinimap implements Runnable {
 
                             try
                             {
-                                this.wayX = Integer.parseInt(this.inStr);
+                                this.wayX = toInt(this.inStr);
                             }
                             catch (Exception localException)
                             {
                                 this.next = 3;
                             }
 
-                            this.inStr = Integer.toString(this.yCoord());
+                            this.inStr = (netherpoints ? "n" : "") + Integer.toString(this.yCoord());
                         }
                         else
                         {
@@ -1625,7 +1715,7 @@ public class ZanMinimap implements Runnable {
 
                             try
                             {
-                                this.wayZ = Integer.parseInt(this.inStr);
+                                this.wayZ = toInt(this.inStr);
                             }
                             catch (Exception localException)
                             {
@@ -1687,7 +1777,7 @@ public class ZanMinimap implements Runnable {
             if (this.iMenu == 6)
                 try
                 {
-                    if (Integer.parseInt(this.inStr) == this.xCoord())
+                    if (toInt(this.inStr) == this.xCoord() * (netherpoints ? 8 : 1))
                         this.write("(Current)", (int)leftX + border + this.chkLen(this.inStr) + 5, (int)topY + border, 0xa0a0a0);
                 }
                 catch (Exception localException)
@@ -1695,7 +1785,7 @@ public class ZanMinimap implements Runnable {
             else if (this.iMenu == 7)
                 try
                 {
-                    if (Integer.parseInt(this.inStr) == this.yCoord())
+                    if (toInt(this.inStr) == this.yCoord() * (netherpoints ? 8 : 1))
                         this.write("(Current)", (int)leftX + border + this.chkLen(this.inStr) + 5, (int)topY + border, 0xa0a0a0);
                 }
                 catch (Exception localException)
@@ -2089,9 +2179,17 @@ public class ZanMinimap implements Runnable {
         else if (i == 1)
             this.hide = !this.hide;
         else if (i == 2)
+        {
             lightmap = !lightmap;
+            if(cavemap)
+                heightmap = !lightmap;
+        }
         else if (i == 3)
+        {
             heightmap = !heightmap;
+            if(cavemap)
+                lightmap = !heightmap;
+        }
         else if (i == 4)
             showmap = !showmap;
         else if (i == 5)
@@ -2099,11 +2197,24 @@ public class ZanMinimap implements Runnable {
         else if (i == 6)
             threading = !threading;
         else if (i == 7)
-            color = !color;
+        {
+            if(!cavemap)
+                color = !color;
+        }
         else if (i == 8)
             netherpoints = !netherpoints;
         else if (i == 9)
+        {
             cavemap = !cavemap;
+            if(cavemap)
+            {
+                lightmap = true;
+                heightmap = false;
+                this.full = false;
+                this.zoom=1;
+                this.error = "Cavemap zoom (2.0x)";
+            }
+        }
         // TODO: else if (i==7) aprilfools = !aprilfools;
         else
             throw new IllegalArgumentException("bad option number " + i);
@@ -2190,35 +2301,55 @@ public class ZanMinimap implements Runnable {
         }
         else
         {
-            if (this.zoom == 3)
+            if(cavemap)
             {
-                if (!this.full)
-                    this.full = true;
+                this.full = false;
+                this.error = "Cavemap zoom ";
+                if (this.zoom != 1)
+                {
+                    this.zoom = 1;
+                    this.error += "(2.0x)";
+                }
                 else
                 {
-                    this.zoom = 2;
-                    this.full = false;
-                    this.error = "Zoom Level: (1.0x)";
+                    this.zoom = 0;
+                    this.error += "(4.0x)";
                 }
-            }
-            else if (this.zoom == 0)
-            {
-                this.zoom = 3;
-                this.error = "Zoom Level: (0.5x)";
-            }
-            else if (this.zoom == 2)
-            {
-                this.zoom = 1;
-                this.error = "Zoom Level: (2.0x)";
             }
             else
             {
-                this.zoom = 0;
-                this.error = "Zoom Level: (4.0x)";
+                if (this.zoom == 3)
+                {
+                    if (!this.full)
+                        this.full = true;
+                    else
+                    {
+                        this.zoom = 2;
+                        this.full = false;
+                        this.error = "Zoom Level: (1.0x)";
+                    }
+                }
+                else if (this.zoom == 0)
+                {
+                    this.zoom = 3;
+                    this.error = "Zoom Level: (0.5x)";
+                }
+                else if (this.zoom == 2)
+                {
+                    this.zoom = 1;
+                    this.error = "Zoom Level: (2.0x)";
+                }
+                else
+                {
+                    this.zoom = 0;
+                    this.error = "Zoom Level: (4.0x)";
+                }
             }
             this.timer = 500;
         }
 
+        
+        
         this.fudge = 20;
     }
 

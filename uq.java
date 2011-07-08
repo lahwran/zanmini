@@ -9,10 +9,9 @@ import java.util.Random;
 import net.minecraft.client.Minecraft;
 import org.lwjgl.opengl.GL11;
 
-public class uk extends tw {
+public class uq extends ub {
 
-    private static ba d = new ba();
-    @SuppressWarnings("unchecked")
+    private static bb d = new bb();
     private java.util.List e;
     private Random f;
     private Minecraft g;
@@ -27,7 +26,7 @@ public class uk extends tw {
     private ZanMinimap minimap = new ZanMinimap(); //TODO: update
 
     @SuppressWarnings("unchecked")
-    public uk(Minecraft minecraft) {
+    public uq(Minecraft minecraft) {
         e = ((java.util.List) (new ArrayList()));
         f = new Random();
         a = null;
@@ -40,19 +39,19 @@ public class uk extends tw {
     }
 
     public void a(float f1, boolean flag, int k, int i1) {
-        qm qm1 = new qm(g.z, g.d, g.e);
-        int j1 = qm1.a();
-        int k1 = qm1.b();
-        se se1 = g.q;
+        qq qq1 = new qq(g.z, g.d, g.e);
+        int j1 = qq1.a();
+        int k1 = qq1.b();
+        sj sj1 = g.q;
         g.t.b();
         GL11.glEnable(3042);
 
         if(Minecraft.u())
             a(g.h.a(f1), j1, k1);
 
-        iw iw1 = g.h.c.d(3);
+        iz iz1 = g.h.c.d(3);
 
-        if(!g.z.A && iw1 != null && iw1.c == un.bb.bn)
+        if(!g.z.A && iz1 != null && iz1.c == uu.bb.bn)
             a(j1, k1);
 
         float f2 = g.h.C + (g.h.B - g.h.C) * f1;
@@ -62,10 +61,10 @@ public class uk extends tw {
 
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
         GL11.glBindTexture(3553, g.p.b("/gui/gui.png"));
-        iu iu1 = g.h.c;
+        ix ix1 = g.h.c;
         this.k = -90F;
         b(j1 / 2 - 91, k1 - 22, 0, 0, 182, 22);
-        b((j1 / 2 - 91 - 1) + iu1.c * 20, k1 - 22 - 1, 0, 22, 24, 22);
+        b((j1 / 2 - 91 - 1) + ix1.c * 20, k1 - 22 - 1, 0, 22, 24, 22);
         GL11.glBindTexture(3553, g.p.b("/gui/icons.png"));
         GL11.glEnable(3042);
         GL11.glBlendFunc(775, 769);
@@ -126,7 +125,7 @@ public class uk extends tw {
                     b(l6, j4, 61, 0, 9, 9);
             }
 
-            if(g.h.a(lj.g)) {
+            if(g.h.a(ln.g)) {
                 int j3 = (int)Math.ceil(((double)(g.h.bz - 2) * 10D) / 300D);
                 int k4 = (int)Math.ceil(((double)g.h.bz * 10D) / 300D) - j3;
 
@@ -142,7 +141,7 @@ public class uk extends tw {
         GL11.glEnable(32826);
         GL11.glPushMatrix();
         GL11.glRotatef(120F, 1.0F, 0.0F, 0.0F);
-        t.b();
+        u.b();
         GL11.glPopMatrix();
 
         for(int k2 = 0; k2 < 9; k2++) {
@@ -151,7 +150,7 @@ public class uk extends tw {
             a(k2, k3, l4, f1);
         }
 
-        t.a();
+        u.a();
         GL11.glDisable(32826);
 
         if(g.h.P() > 0) {
@@ -176,22 +175,23 @@ public class uk extends tw {
             if(Minecraft.H > 0L)
                 GL11.glTranslatef(0.0F, 32F, 0.0F);
 
-            se1.a((new StringBuilder()).append("Minecraft Beta 1.6.6 (").append(g.K).append(")").toString(), 2, 2, 0xffffff);
-            se1.a(g.o(), 2, 12, 0xffffff);
-            se1.a(g.p(), 2, 22, 0xffffff);
-            se1.a(g.r(), 2, 32, 0xffffff);
-            se1.a(g.q(), 2, 42, 0xffffff);
+            sj1.a((new StringBuilder()).append("Minecraft Beta 1.7.4 (").append(g.K).append(")").toString(), 2, 2, 0xffffff);
+            sj1.a(g.o(), 2, 12, 0xffffff);
+            sj1.a(g.p(), 2, 22, 0xffffff);
+            sj1.a(g.r(), 2, 32, 0xffffff);
+            sj1.a(g.q(), 2, 42, 0xffffff);
             long l3 = Runtime.getRuntime().maxMemory();
             long l5 = Runtime.getRuntime().totalMemory();
             long l7 = Runtime.getRuntime().freeMemory();
             long l8 = l5 - l7;
             String s = (new StringBuilder()).append("Used memory: ").append((l8 * 100L) / l3).append("% (").append(l8 / 1024L / 1024L).append("MB) of ").append(l3 / 1024L / 1024L).append("MB").toString();
-            b(se1, s, j1 - se1.a(s) - 2, 2, 0xe0e0e0);
+            b(sj1, s, j1 - sj1.a(s) - 2, 2, 0xe0e0e0);
             s = (new StringBuilder()).append("Allocated memory: ").append((l5 * 100L) / l3).append("% (").append(l5 / 1024L / 1024L).append("MB)").toString();
-            b(se1, s, j1 - se1.a(s) - 2, 12, 0xe0e0e0);
-            b(se1, (new StringBuilder()).append("x: ").append(g.h.aM).toString(), 2, 64, 0xe0e0e0);
-            b(se1, (new StringBuilder()).append("y: ").append(g.h.aN).toString(), 2, 72, 0xe0e0e0);
-            b(se1, (new StringBuilder()).append("z: ").append(g.h.aO).toString(), 2, 80, 0xe0e0e0);
+            b(sj1, s, j1 - sj1.a(s) - 2, 12, 0xe0e0e0);
+            b(sj1, (new StringBuilder()).append("x: ").append(g.h.aM).toString(), 2, 64, 0xe0e0e0);
+            b(sj1, (new StringBuilder()).append("y: ").append(g.h.aN).toString(), 2, 72, 0xe0e0e0);
+            b(sj1, (new StringBuilder()).append("z: ").append(g.h.aO).toString(), 2, 80, 0xe0e0e0);
+            b(sj1, (new StringBuilder()).append("f: ").append(in.b((double)((g.h.aS * 4F) / 360F) + 0.5D) & 3).toString(), 2, 88, 0xe0e0e0);
             GL11.glPopMatrix();
         }
 
@@ -212,7 +212,7 @@ public class uk extends tw {
                 if(l)
                     j5 = Color.HSBtoRGB(f3 / 50F, 0.7F, 0.6F) & 0xffffff;
 
-                se1.b(i, -se1.a(i) / 2, -4, j5 + (i4 << 24));
+                sj1.b(i, -sj1.a(i) / 2, -4, j5 + (i4 << 24));
                 GL11.glDisable(3042);
                 GL11.glPopMatrix();
             }
@@ -221,7 +221,7 @@ public class uk extends tw {
         byte byte0 = 10;
         boolean flag2 = false;
 
-        if(g.r instanceof ga) {
+        if(g.r instanceof gc) {
             byte0 = 20;
             flag2 = true;
         }
@@ -233,10 +233,10 @@ public class uk extends tw {
         GL11.glTranslatef(0.0F, k1 - 48, 0.0F);
 
         for(int k5 = 0; k5 < e.size() && k5 < byte0; k5++) {
-            if(((sr)e.get(k5)).b >= 200 && !flag2)
+            if(((sw)e.get(k5)).b >= 200 && !flag2)
                 continue;
 
-            double d1 = (double)((sr)e.get(k5)).b / 200D;
+            double d1 = (double)((sw)e.get(k5)).b / 200D;
             d1 = 1.0D - d1;
             d1 *= 10D;
 
@@ -255,10 +255,10 @@ public class uk extends tw {
             if(i7 > 0) {
                 byte byte1 = 2;
                 int j7 = -k5 * 9;
-                String s1 = ((sr)e.get(k5)).a;
+                String s1 = ((sw)e.get(k5)).a;
                 a(((int) (byte1)), j7 - 1, byte1 + 320, j7 + 8, i7 / 2 << 24);
                 GL11.glEnable(3042);
-                se1.a(s1, ((int) (byte1)), j7, 0xffffff + (i7 << 24));
+                sj1.a(s1, ((int) (byte1)), j7, 0xffffff + (i7 << 24));
             }
         }
 
@@ -274,13 +274,13 @@ public class uk extends tw {
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
         GL11.glDisable(3008);
         GL11.glBindTexture(3553, g.p.b("%blur%/misc/pumpkinblur.png"));
-        ns ns1 = ns.a;
-        ns1.b();
-        ns1.a(0.0D, i1, -90D, 0.0D, 1.0D);
-        ns1.a(k, i1, -90D, 1.0D, 1.0D);
-        ns1.a(k, 0.0D, -90D, 1.0D, 0.0D);
-        ns1.a(0.0D, 0.0D, -90D, 0.0D, 0.0D);
-        ns1.a();
+        nw nw1 = nw.a;
+        nw1.b();
+        nw1.a(0.0D, i1, -90D, 0.0D, 1.0D);
+        nw1.a(k, i1, -90D, 1.0D, 1.0D);
+        nw1.a(k, 0.0D, -90D, 1.0D, 0.0D);
+        nw1.a(0.0D, 0.0D, -90D, 0.0D, 0.0D);
+        nw1.a();
         GL11.glDepthMask(true);
         GL11.glEnable(2929);
         GL11.glEnable(3008);
@@ -302,13 +302,13 @@ public class uk extends tw {
         GL11.glBlendFunc(0, 769);
         GL11.glColor4f(c, c, c, 1.0F);
         GL11.glBindTexture(3553, g.p.b("%blur%/misc/vignette.png"));
-        ns ns1 = ns.a;
-        ns1.b();
-        ns1.a(0.0D, i1, -90D, 0.0D, 1.0D);
-        ns1.a(k, i1, -90D, 1.0D, 1.0D);
-        ns1.a(k, 0.0D, -90D, 1.0D, 0.0D);
-        ns1.a(0.0D, 0.0D, -90D, 0.0D, 0.0D);
-        ns1.a();
+        nw nw1 = nw.a;
+        nw1.b();
+        nw1.a(0.0D, i1, -90D, 0.0D, 1.0D);
+        nw1.a(k, i1, -90D, 1.0D, 1.0D);
+        nw1.a(k, 0.0D, -90D, 1.0D, 0.0D);
+        nw1.a(0.0D, 0.0D, -90D, 0.0D, 0.0D);
+        nw1.a();
         GL11.glDepthMask(true);
         GL11.glEnable(2929);
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
@@ -328,17 +328,17 @@ public class uk extends tw {
         GL11.glBlendFunc(770, 771);
         GL11.glColor4f(1.0F, 1.0F, 1.0F, f1);
         GL11.glBindTexture(3553, g.p.b("/terrain.png"));
-        float f2 = (float)(un.bf.bm % 16) / 16F;
-        float f3 = (float)(un.bf.bm / 16) / 16F;
-        float f4 = (float)(un.bf.bm % 16 + 1) / 16F;
-        float f5 = (float)(un.bf.bm / 16 + 1) / 16F;
-        ns ns1 = ns.a;
-        ns1.b();
-        ns1.a(0.0D, i1, -90D, f2, f5);
-        ns1.a(k, i1, -90D, f4, f5);
-        ns1.a(k, 0.0D, -90D, f4, f3);
-        ns1.a(0.0D, 0.0D, -90D, f2, f3);
-        ns1.a();
+        float f2 = (float)(uu.bf.bm % 16) / 16F;
+        float f3 = (float)(uu.bf.bm / 16) / 16F;
+        float f4 = (float)(uu.bf.bm % 16 + 1) / 16F;
+        float f5 = (float)(uu.bf.bm / 16 + 1) / 16F;
+        nw nw1 = nw.a;
+        nw1.b();
+        nw1.a(0.0D, i1, -90D, f2, f5);
+        nw1.a(k, i1, -90D, f4, f5);
+        nw1.a(k, 0.0D, -90D, f4, f3);
+        nw1.a(0.0D, 0.0D, -90D, f2, f3);
+        nw1.a();
         GL11.glDepthMask(true);
         GL11.glEnable(2929);
         GL11.glEnable(3008);
@@ -346,12 +346,12 @@ public class uk extends tw {
     }
 
     private void a(int k, int i1, int j1, float f1) {
-        iw iw1 = g.h.c.a[k];
+        iz iz1 = g.h.c.a[k];
 
-        if(iw1 == null)
+        if(iz1 == null)
             return;
 
-        float f2 = (float)iw1.b - f1;
+        float f2 = (float)iz1.b - f1;
 
         if(f2 > 0.0F) {
             GL11.glPushMatrix();
@@ -361,12 +361,12 @@ public class uk extends tw {
             GL11.glTranslatef(-(i1 + 8), -(j1 + 12), 0.0F);
         }
 
-        d.a(g.q, g.p, iw1, i1, j1);
+        d.a(g.q, g.p, iz1, i1, j1);
 
         if(f2 > 0.0F)
             GL11.glPopMatrix();
 
-        d.b(g.q, g.p, iw1, i1, j1);
+        d.b(g.q, g.p, iz1, i1, j1);
     }
 
     public void a() {
@@ -376,14 +376,13 @@ public class uk extends tw {
         h++;
 
         for(int k = 0; k < e.size(); k++)
-            ((sr)e.get(k)).b++;
+            ((sw)e.get(k)).b++;
     }
 
     public void b() {
         e.clear();
     }
 
-    @SuppressWarnings("unchecked")
     public void a(String s) {
         int k;
 
@@ -393,7 +392,7 @@ public class uk extends tw {
             a(s.substring(0, k));
         }
 
-        e.add(0, ((Object) (new sr(s))));
+        e.add(0, ((Object) (new sw(s))));
 
         for(; e.size() > 50; e.remove(e.size() - 1));
     }
@@ -405,8 +404,8 @@ public class uk extends tw {
     }
 
     public void c(String s) {
-        nd nd1 = nd.a();
-        String s1 = nd1.a(s);
+        nh nh1 = nh.a();
+        String s1 = nh1.a(s);
         a(s1);
     }
 
