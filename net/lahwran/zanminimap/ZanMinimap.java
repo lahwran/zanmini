@@ -1,22 +1,29 @@
+package net.lahwran.zanminimap;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import net.lahwran.zanminimap.BlockColor;
-import net.lahwran.zanminimap.TintType;
-import net.lahwran.zanminimap.Waypoint;
 import net.minecraft.client.Minecraft;
 
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
+
+import deobf.*;
 
 public class ZanMinimap implements Runnable {
     // TODO: update
@@ -41,8 +48,16 @@ public class ZanMinimap implements Runnable {
 
     public String getMapName()
     {
-        return game.f.x.j();
-        //return game.f.s.j();
+        try {
+            fd world = getWorld();
+            Class worldclass = world.getClass();
+            Field worlddatafield = worldclass.getDeclaredField("x");
+            worlddatafield.setAccessible(true);
+            ei worldata = (ei) worlddatafield.get(world);
+            return worldata.j();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public String getServerName()
@@ -733,7 +748,7 @@ public class ZanMinimap implements Runnable {
     public int zoom = 2;
 
     /** Current build version */
-    public String zmodver = "v0.10.4";
+    public static final String zmodver = "v0.10.5";
 
     /** Minecraft version that we'll work with */
     public static final String mcvers = "1.7.3";
@@ -1146,6 +1161,167 @@ public class ZanMinimap implements Runnable {
         {
             e.printStackTrace();
         }
+        try {
+            Class aether = Class.forName("mod_Aether");
+            HashMap<String,BlockColor> aetherColors = new HashMap<String,BlockColor>();
+            for(Field f:aether.getDeclaredFields())
+            {
+                if (f.getName().startsWith("idBlock"))
+                {
+                    aetherColors.put(f.getName().substring("idBlock".length())+".0", new BlockColor(0xde00ff, 0xff, TintType.NONE));
+                }
+            }
+            
+            aetherColors.put("Aercloud.0", new BlockColor(0xf3f3f3, 0xa6, TintType.NONE));
+            aetherColors.put("Aerogel.0", new BlockColor(0xc3c9e3, 0xbc, TintType.NONE));
+            aetherColors.put("AetherDirt.0", new BlockColor(0x646f73, 0xff, TintType.NONE));
+            aetherColors.put("AetherGrass.0", new BlockColor(0x71a583, 0xff, TintType.NONE));
+            aetherColors.put("AetherPortal.0", new BlockColor(0x275dff, 0x89, TintType.NONE));
+            aetherColors.put("AmbrosiumOre.0", new BlockColor(0x9e9e9e, 0xff, TintType.NONE));
+            aetherColors.put("AmbrosiumTorch.0", new BlockColor(0xaeac00, 0xff, TintType.NONE));
+            aetherColors.put("ChestMimic.0", new BlockColor(0x8f691d, 0xff, TintType.NONE));
+            aetherColors.put("DungeonStone.0", new BlockColor(0x797979, 0xff, TintType.NONE));
+            aetherColors.put("DungeonStone.1", new BlockColor(0x9c8663, 0xff, TintType.NONE));
+            aetherColors.put("DungeonStone.2", new BlockColor(0x9d8763, 0xff, TintType.NONE));
+            aetherColors.put("EnchantedGravitite.0", new BlockColor(0xde76bd, 0xff, TintType.NONE));
+            aetherColors.put("Enchanter.0", new BlockColor(0x393a2b, 0xff, TintType.NONE));
+            aetherColors.put("GoldenOakLeaves.0", new BlockColor(0x393a2b, 0x9c, TintType.NONE));
+            aetherColors.put("GoldenOakSapling.0", new BlockColor(0x968f38, 0xff, TintType.NONE));
+            aetherColors.put("GravititeOre.0", new BlockColor(0x9e9e9e, 0xff, TintType.NONE));
+            aetherColors.put("Holystone.0", new BlockColor(0x9e9e9e, 0xff, TintType.NONE));
+            aetherColors.put("Icestone.0", new BlockColor(0x989c9c, 0xff, TintType.NONE));
+            aetherColors.put("Incubator.0", new BlockColor(0x2a2a21, 0xff, TintType.NONE));
+            aetherColors.put("LightDungeonStone.0", new BlockColor(0x9e9e9e, 0xff, TintType.NONE));
+            aetherColors.put("LockedDungeonStone.0", new BlockColor(0x9e9e9e, 0xff, TintType.NONE));
+            aetherColors.put("LockedLightDungeonStone.0", new BlockColor(0x9e9e9e, 0xff, TintType.NONE));
+            aetherColors.put("Log.0", new BlockColor(0x796945, 0xff, TintType.NONE));
+            aetherColors.put("Pillar.0", new BlockColor(0xe3d3c2, 0xff, TintType.NONE));
+            aetherColors.put("Plank.0", new BlockColor(0x555540, 0xff, TintType.NONE));
+            aetherColors.put("Quicksoil.0", new BlockColor(0xccc67b, 0xff, TintType.NONE));
+            aetherColors.put("SkyrootLeaves.0", new BlockColor(0x9db361, 0x9a, TintType.NONE));
+            aetherColors.put("SkyrootSapling.0", new BlockColor(0x8da457, 0x4a, TintType.NONE));
+            aetherColors.put("Trap.0", new BlockColor(0x9e9e9e, 0xff, TintType.NONE));
+            aetherColors.put("TreasureChest.0", new BlockColor(0x8f691d, 0xff, TintType.NONE));
+            aetherColors.put("ZaniteOre.0", new BlockColor(0x9e9e9e, 0xff, TintType.NONE));
+            
+            settingsFile = new File(getAppDir("minecraft"), "minimapcolors_aether");
+            ArrayList<String> commentLines = new ArrayList<String>();
+            //blockColors[blockColorID(0, 0)] = new BlockColor(0xff00ff, 0, TintType.NONE); //air
+            Pattern colorline = Pattern.compile("^([^. ]*.[0-9][0-9]?): color=([0-9a-fA-F]*).alpha=([0-9a-fA-F]*) tint=(.*)$");
+            if (settingsFile.exists())
+            {
+                BufferedReader in = new BufferedReader(new FileReader(settingsFile));
+                String sCurrentLine;
+
+                while ((sCurrentLine = in.readLine()) != null)
+                {
+                    if (sCurrentLine.startsWith("#")) continue;
+                    Matcher match = colorline.matcher(sCurrentLine);
+                    // new
+                    if (match.matches())
+                    {
+                        String id = match.group(1);
+                        int col = Integer.parseInt(match.group(2), 16);
+                        int alpha = Integer.parseInt(match.group(3), 16);
+                        TintType tint = TintType.get(match.group(4));
+                        if (tint == null) tint = TintType.NONE;
+                        if(aetherColors.containsKey(id.split("\\.")[0]+".0"))
+                        {
+                            aetherColors.put(id, new BlockColor(col, alpha, tint));
+                        }
+                        else
+                            commentLines.add("#aetherblock does not exist: "+sCurrentLine);
+                    }
+                    else
+                    {
+                        commentLines.add("#incorrect format: "+sCurrentLine);
+                    }
+                }
+                
+                in.close();
+            }
+            PrintWriter out = new PrintWriter(new FileWriter(settingsFile));
+            out.print("#Available tints: ");
+            TintType[] availtints = TintType.values();
+            for (int i = 0; i < availtints.length; i++)
+            {
+                out.print(availtints[i].name());
+                if (i < availtints.length - 1) out.print(", ");
+            }
+            out.println();
+            /*out.print("#Available aether blocks: ");
+            List<String> sortedBlocks = asSortedList(aetherBlocks);+
+            int printed = "#Available aether blocks: ".length();
+            for (int i=0; i<sortedBlocks.size(); i++)
+            {
+                int lastprinted = printed;
+                String thisone = sortedBlocks.get(i);
+                printed += thisone.length();
+                out.print(thisone);
+                if (i < sortedBlocks.size() - 1)
+                {
+                    out.print(", ");
+                    printed += 2;
+                }
+                if ((lastprinted % 80) + (printed-lastprinted) > 80 )
+                {
+                    out.print("\n#");
+                    printed += 1;
+                }
+            }*/
+            out.println("#format: AetherName.metadata: color=RRGGBB/alpha=AA tint=TINTTYPE");
+            List<String> aethernames = asSortedList(aetherColors.keySet());
+            for (String key:aethernames)
+            {
+                BlockColor val = aetherColors.get(key);
+                out.println("" + key + ": color=" + Integer.toHexString(val.color) + "/alpha=" + Integer.toHexString(val.alpha) + " tint=" + val.tintType.name());
+            }
+            for(String line:commentLines)
+            {
+                out.println(line);
+            }
+            out.close();
+            for(String key:aethernames)
+            {
+                String[] split = key.split("\\.");
+                int id=aether.getDeclaredField("idBlock"+split[0]).getInt(null);
+                blockColors[blockColorID(id, Integer.parseInt(split[1]))] = aetherColors.get(key);
+            }
+            System.out.println("zanminimap: aether found, loaded aether block colors");
+        } catch (ClassNotFoundException c)
+        {
+            System.out.println("zanminimap: aether not found, not attempting to load aether block colors");
+        }
+        catch (IllegalArgumentException e)
+        {
+            e.printStackTrace();
+        }
+        catch (SecurityException e)
+        {
+            System.out.println("zanminimap: you seem to be running me in a sandbox that prevents me from accessing mod_Aether or one of it's fields. nice going ...");
+            e.printStackTrace();
+        }
+        catch (IllegalAccessException e)
+        {
+            System.out.println("zanminimap: you seem to be running me in a sandbox that prevents me from accessing mod_Aether or one of it's fields. nice going ...");
+            e.printStackTrace();
+        }
+        catch (NoSuchFieldException e)
+        {
+            System.out.println("zanminimap: aether seems to have changed, bug lahwran about it! give him this error message:");
+            e.printStackTrace();
+        }
+        catch (IOException e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+    
+    public static <T extends Comparable<? super T>> List<T> asSortedList(Collection<T> c) {
+      List<T> list = new ArrayList<T>(c);
+      java.util.Collections.sort(list);
+      return list;
     }
 
     private final int blockColorID(int blockid, int meta)
