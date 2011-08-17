@@ -786,7 +786,7 @@ public class Menu {
         else if (i == 1) return conf.hide;
         else if (i == 2) return conf.lightmap;
         else if (i == 3) return conf.heightmap;
-        else if (i == 4) return conf.showmap;
+        else if (i == 4) return conf.squaremap;
         else if (i == 5) return conf.welcome;
         else if (i == 6) return conf.threading;
         else if (i == 7) return conf.color;
@@ -814,7 +814,7 @@ public class Menu {
                 conf.lightmap = !conf.heightmap;
         }
         else if (i == 4)
-            conf.showmap = !conf.showmap;
+            conf.squaremap = !conf.squaremap;
         else if (i == 5)
             conf.welcome = !conf.welcome;
         else if (i == 6)

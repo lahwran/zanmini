@@ -221,7 +221,7 @@ public class MapCalculator implements Runnable {
                     if (Math.sqrt(a * a + c * c) < (e - f))
                         check = true;
 
-                    if (check || conf.showmap || conf.full) {
+                    if (check || conf.squaremap || conf.full) {
                         color24 = shadeBlock(data, startX + imageY, startZ - imageX);
                     }
 

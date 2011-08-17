@@ -60,9 +60,22 @@ public class ObfHub {
         try {
             fd world = getWorld();
             Class worldclass = world.getClass();
-            Field worlddatafield = worldclass.getDeclaredField("x");
+            Field worlddatafield = null;
+            while (true) { //
+                
+                try {
+                    worlddatafield = worldclass.getDeclaredField("x");
+                    break;
+                } catch (NoSuchFieldException e) {
+                    worldclass = worldclass.getSuperclass();
+                    continue;
+                }
+            }
             worlddatafield.setAccessible(true);
-            ei worldata = (ei) worlddatafield.get(world);
+            
+            ei worldata;
+            
+            worldata = (ei) worlddatafield.get(world);
             return worldata.j();
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -327,5 +340,8 @@ public class ObfHub {
             default:
                 return original;
         }*/
+    }
+    public boolean worldIsNull() {
+        return game.r == null;
     }
 }

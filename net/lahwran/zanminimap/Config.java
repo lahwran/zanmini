@@ -48,7 +48,7 @@ public class Config {
     public int menuKey = Keyboard.KEY_M;
 
     /** Square map toggle */
-    public boolean showmap = false;
+    public boolean squaremap = false;
 
     /** Show coordinates toggle */
     public boolean coords = true;
@@ -152,7 +152,7 @@ public class Config {
                 String[] curLine = sCurrentLine.split(":");
 
                 if (curLine[0].equals("Show Minimap"))
-                    showmap = Boolean.parseBoolean(curLine[1]);
+                    squaremap = Boolean.parseBoolean(curLine[1]);
                 else if (curLine[0].equals("Show Coordinates"))
                     coords = Boolean.parseBoolean(curLine[1]);
                 else if (curLine[0].equals("Dynamic Lighting"))
@@ -573,7 +573,7 @@ public class Config {
         try
         {
             PrintWriter out = new PrintWriter(new FileWriter(settingsFile));
-            out.println("Show Minimap:" + Boolean.toString(showmap));
+            out.println("Show Minimap:" + Boolean.toString(squaremap));
             out.println("Show Coordinates:" + Boolean.toString(coords));
             out.println("Dynamic Lighting:" + Boolean.toString(lightmap));
             out.println("Terrain Depth:" + Boolean.toString(heightmap));

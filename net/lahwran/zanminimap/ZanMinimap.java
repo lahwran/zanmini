@@ -127,7 +127,7 @@ public class ZanMinimap {
         {
             if (!conf.welcome) menu.iMenu = 0;
         }
-        if (obfhub.game.r == null && menu.iMenu > 1) menu.iMenu = 0;
+        if (obfhub.worldIsNull() && menu.iMenu > 1) menu.iMenu = 0;
 
         if ((obfhub.isIngameMenuUp()) ^ (Keyboard.isKeyDown(Keyboard.KEY_F6)))
             conf.enabled = false;
@@ -186,7 +186,7 @@ public class ZanMinimap {
         {
             if (this.q != 0) obfhub.glah(this.q);
 
-            if (conf.showmap)
+            if (conf.squaremap)
             {
                 if (conf.zoom == 3)
                 {
@@ -199,14 +199,15 @@ public class ZanMinimap {
                     this.q = obfhub.tex(mapcalc.map[conf.zoom]);
 
                 obfhub.draw_startQuads();
-                this.setMap(scWidth);
+                this.drawOnMap(scWidth);
                 obfhub.draw_finish();
 
+                GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
                 try
                 {
                     obfhub.disp(obfhub.img("/minimap.png"));
                     obfhub.draw_startQuads();
-                    this.setMap(scWidth);
+                    this.drawOnMap(scWidth);
                     obfhub.draw_finish();
                 }
                 catch (Exception localException)
@@ -222,7 +223,7 @@ public class ZanMinimap {
                     GL11.glRotatef(-this.direction - 90.0F, 0.0F, 0.0F, 1.0F);
                     GL11.glTranslatef(-(scWidth - 32.0F), -37.0F, 0.0F);
                     obfhub.draw_startQuads();
-                    this.setMap(scWidth);
+                    this.drawOnMap(scWidth);
                     obfhub.draw_finish();
                 }
                 catch (Exception localException)
@@ -258,12 +259,11 @@ public class ZanMinimap {
                     GL11.glTranslatef(-0.5f, -0.5f, 0.0f);
 
                 obfhub.draw_startQuads();
-                this.setMap(scWidth);
+                this.drawOnMap(scWidth);
                 obfhub.draw_finish();
                 GL11.glPopMatrix();
                 GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
-                GL11.glColor3f(1.0F, 1.0F, 1.0F);
                 this.drawRound(scWidth);
                 this.drawDirections(scWidth);
 
@@ -288,7 +288,7 @@ public class ZanMinimap {
                                 GL11.glTranslatef(-(scWidth - 32.0F), -37.0F, 0.0F);
                                 GL11.glTranslated(0.0D, -34.0D, 0.0D);
                                 obfhub.draw_startQuads();
-                                this.setMap(scWidth);
+                                this.drawOnMap(scWidth);
                                 obfhub.draw_finish();
                             }
                             catch (Exception localException)
@@ -327,7 +327,7 @@ public class ZanMinimap {
                                 GL11.glTranslatef(-(scWidth - 32.0F), -37.0F, 0.0F);
                                 GL11.glTranslated(0.0D, -hypot, 0.0D);
                                 obfhub.draw_startQuads();
-                                this.setMap(scWidth);
+                                this.drawOnMap(scWidth);
                                 obfhub.draw_finish();
                             }
                             catch (Exception localException)
@@ -379,8 +379,6 @@ public class ZanMinimap {
         }
     }
 
-
-
     private void showCoords(int scWidth, int scHeight)
     {
         if (!conf.hide)
@@ -405,7 +403,7 @@ public class ZanMinimap {
         {
             obfhub.disp(obfhub.img("/roundmap.png"));
             obfhub.draw_startQuads();
-            this.setMap(paramInt1);
+            this.drawOnMap(paramInt1);
             obfhub.draw_finish();
         }
         catch (Exception localException)
@@ -414,9 +412,7 @@ public class ZanMinimap {
         }
     }
 
-
-
-    private void setMap(int paramInt1)
+    private void drawOnMap(int paramInt1)
     {
         obfhub.ldraw_addVertexWithUV(paramInt1 - 64.0D, 64.0D + 5.0D, 1.0D, 0.0D, 1.0D);
         obfhub.ldraw_addVertexWithUV(paramInt1, 64.0D + 5.0D, 1.0D, 1.0D, 1.0D);
