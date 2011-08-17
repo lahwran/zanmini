@@ -86,7 +86,7 @@ public class ZanMinimap {
                 menu.error = "Cavemap zoom (2.0x)";
             }
         }
-
+        obfhub.tick();
         mapcalc.tick();
         String worldName = obfhub.getWorldName();
 
@@ -120,6 +120,6 @@ public class ZanMinimap {
         scHeight -= 5;
 
         menu.tick(scWidth, scHeight);
-        
+        renderer.tick(scWidth, scHeight);
     }
 }

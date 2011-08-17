@@ -27,6 +27,10 @@ public class MapRenderer {
 
     public MapRenderer(ZanMinimap minimap) {
         this.minimap = minimap;
+        menu = minimap.menu;
+        obfhub = minimap.obfhub;
+        conf = minimap.conf;
+        mapcalc = minimap.mapcalc;
     }
 
     public void tick(int scWidth, int scHeight) {

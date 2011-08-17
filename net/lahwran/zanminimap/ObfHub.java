@@ -239,6 +239,8 @@ public class ObfHub {
 
     int tex(BufferedImage paramImg)
     {
+        if (paramImg == null) throw new NullPointerException();
+        if (renderEngine == null) throw new NullPointerException();
         return this.renderEngine.a(paramImg);
     }
 
