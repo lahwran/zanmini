@@ -26,7 +26,7 @@ public class uq extends ub {
     public float b;
     float c;
 
-    private ZanMinimap minimap = new ZanMinimap(); //TODO: update
+    public ZanMinimap minimap = new ZanMinimap(); //TODO: update
 
     @SuppressWarnings("unchecked")
     public uq(Minecraft minecraft) {

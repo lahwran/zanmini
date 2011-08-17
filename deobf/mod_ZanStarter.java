@@ -8,14 +8,14 @@ import net.minecraft.client.Minecraft;
  * 
  * @author lahwran
  */
-public class mod_ZanMinimap extends BaseMod {
+public class mod_ZanStarter extends BaseMod {
 
     public ZanMinimap minimap;
 
-    public mod_ZanMinimap() {
+    public mod_ZanStarter() {
         boolean needmodloader = true;
         try {
-            uq.class.getField("minimap");
+            uq.class.getDeclaredField("minimap");
             needmodloader = false;
             System.out.println("ZanMinimap: found modloader and GuiIngame hook: using GuiIngame hook");
         } catch (SecurityException e) {

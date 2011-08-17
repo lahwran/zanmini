@@ -2,7 +2,6 @@ package net.lahwran.zanminimap;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -11,7 +10,6 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.regex.Matcher;
@@ -25,6 +23,11 @@ import org.lwjgl.opengl.GL11;
 
 import deobf.*;
 
+/**
+ * Main Zanminimap class where everything happens
+ * 
+ * @author lahwran
+ */
 public class ZanMinimap implements Runnable {
     // TODO: update
     /** Polygon creation class */
@@ -65,12 +68,12 @@ public class ZanMinimap implements Runnable {
         return game.z.C;
     }
 
-    public void drawPre()
+    public void draw_startQuads()
     {
         lDraw.b();
     }
 
-    public void drawPost()
+    public void draw_finish()
     {
         lDraw.a();
     }
@@ -80,19 +83,19 @@ public class ZanMinimap implements Runnable {
         renderEngine.a(g);
     }
 
-    public void ldrawone(int a, int b, double c, double d, double e)
+    public void ldraw_addVertexWithUV(int x, int y, double z, double u, double v)
     {
-        lDraw.a(a, b, c, d, e);
+        ldraw_addVertexWithUV((double) x, (double) y, z, u, v);
     }
 
-    public void ldrawtwo(double a, double b, double c)
+    public void ldraw_setColor(double a, double b, double c)
     {
         lDraw.a(a, b, c);
     }
 
-    public void ldrawthree(double a, double b, double c, double d, double e)
+    public void ldraw_addVertexWithUV(double x, double y, double z, double u, double v)
     {
-        lDraw.a(a, b, c, d, e);
+        lDraw.a(x, y, z, u, v);
     }
 
     public int getMouseX(int scWidth)
@@ -215,7 +218,7 @@ public class ZanMinimap implements Runnable {
         else if (!threading)
         {
             if (this.enabled && !this.hide )
-                if (((this.lastX != this.xCoord()) || (this.lastZ != this.yCoord()) || (this.timer > 300)))
+                if (((this.lastX != this.playerXCoord()) || (this.lastZ != this.playerZCoord()) || (this.timer > 300)))
                     mapCalc();
         }
 
@@ -296,11 +299,6 @@ public class ZanMinimap implements Runnable {
 
             if (coords) showCoords(scWidth, scHeight);
         }
-
-        // while (active) try {
-        // Thread.currentThread().sleep(1);
-        // } catch (Exception local) {}
-        // TODO: what the fuck is this for? :P
     }
 
     private int chkLen(String paramStr)
@@ -313,19 +311,19 @@ public class ZanMinimap implements Runnable {
         this.lang.a(paramStr, paramInt1, paramInt2, paramInt3);
     }
 
-    private int xCoord()
+    private int playerXCoord()
     {
         double posX = this.game.h.aM;
         return (int)(posX < 0.0D ? posX - 1 : posX);
     }
 
-    private int yCoord()
+    private int playerZCoord()
     {
         double posZ = this.game.h.aO;
         return (int)(posZ < 0.0D ? posZ - 1 : posZ);
     }
 
-    private int zCoord()
+    private int playerYCoord()
     {
         double posY = this.game.h.aN;
         return (int)posY;
@@ -478,8 +476,8 @@ public class ZanMinimap implements Runnable {
         {
             lm chunk = world.b(x, z);
             cmdist.setSeed((x & 0xffff) | ((z & 0xffff) << 16));
-            float dist = distance(xCoord(),yCoord(), x, z);
-            int y = zCoord();
+            float dist = distance(playerXCoord(),playerZCoord(), x, z);
+            int y = playerYCoord();
             if (dist > 5)
                 y -= (cmdist.nextInt((int)(dist)) - ((int)dist/2));
             x &= 0xf;
@@ -545,6 +543,79 @@ public class ZanMinimap implements Runnable {
         return getBlockHeight(world, x, z, 127);
     }
 
+    private int shadeBlock(fd world, int x, int z) {
+        int color24 = 0;
+        int height = getBlockHeight(world, x, z);
+        
+        if (this.color && !cavemap)
+        {
+            if ((world.f(x, height+1, z) == ln.s) || (world.f(x, height+1, z) == ln.t))
+                color24 = 0xffffff;
+            else
+            {
+                BlockColor col = getBlockColor(world.a(x, height, z), world.e(x, height, z));
+                color24 = getBlockTint(world, col.color, x, height, z, col.tintType);
+            }
+
+        }
+        else
+            color24 = 0x808080;
+
+        if ((color24 != 0xff00ff) && (color24 != 0))
+        {
+            if (heightmap)
+            {
+                int i2 = height;
+                //if offsetByZloc
+                i2 -= this.playerYCoord();
+                //else
+                //i2 -= 64;
+                double sc = Math.log10(Math.abs(i2) / 8.0D + 1.0D) / 1.3D;
+                int r = color24 / 0x10000;
+                int g = (color24 - r * 0x10000) / 0x100;
+                int b = (color24 - r * 0x10000 - g * 0x100);
+
+                if (i2 >= 0)
+                {
+                    r = (int)(sc * (0xff - r)) + r;
+                    g = (int)(sc * (0xff - g)) + g;
+                    b = (int)(sc * (0xff - b)) + b;
+                }
+                else
+                {
+                    i2 = Math.abs(i2);
+                    r = r - (int)(sc * r);
+                    g = g - (int)(sc * g);
+                    b = b - (int)(sc * b);
+                }
+
+                color24 = r * 0x10000 + g * 0x100 + b;
+            }
+
+            int i3 = 255;
+
+            if (lightmap || cavemap)
+                i3 = world.a(x, height+1, z, false) * 17;
+            int min = 32;
+            if(i3 < min)
+            {
+                i3 = min;
+                if (cavemap)
+                    color24 = 0x222222;
+            }
+            if(!lightmap)
+            {
+                i3 *= 0.5;
+                i3 += 64;
+            }
+            else if(cavemap)
+                i3 *= 1.3f;
+            
+            if (i3 > 255) i3 = 255;
+            color24 = i3 * 0x1000000 + color24;
+        }
+        return color24;
+    }
     private void mapCalc()
     {
         if(!safeToRun()) return;
@@ -553,8 +624,8 @@ public class ZanMinimap implements Runnable {
             fd data = getWorld();
             this.lZoom = this.zoom;
             int multi = (int)Math.pow(2, this.lZoom);
-            int startX = this.xCoord();
-            int startZ = this.yCoord();
+            int startX = this.playerXCoord();
+            int startZ = this.playerZCoord();
             this.lastX = startX;
             this.lastZ = startZ;
             startX -= 16 * multi;
@@ -569,80 +640,15 @@ public class ZanMinimap implements Runnable {
                     color24 = 0;
                     boolean check = false;
 
-                    if (Math.sqrt((16 * multi - imageY) * (16 * multi - imageY) + (16 * multi - imageX) * (16 * multi - imageX)) < ((16 * multi) - ((int)Math.sqrt(multi))))
+                    int a = (16 * multi - imageY);
+                    int c = (16 * multi - imageX);
+                    int e = (16 * multi);
+                    int f = (int) Math.sqrt(multi);
+                    if (Math.sqrt(a * a + c * c) < (e - f))
                         check = true;
 
-                    int height = getBlockHeight(data, startX + imageY, startZ - imageX);
-
-                    if ((check) || (showmap) || (this.full))
-                    {
-                        if (this.color && !cavemap)
-                        {
-                            if ((data.f(startX + imageY, height+1, startZ - imageX) == ln.s) || (data.f(startX + imageY, height+1, startZ - imageX) == ln.t))
-                                color24 = 0xffffff;
-                            else
-                            {
-                                BlockColor col = getBlockColor(data.a(startX + imageY, height, startZ - imageX), data.e(startX + imageY, height, startZ - imageX));
-                                color24 = getBlockTint(data, col.color, startX + imageY, height, startZ - imageX, col.tintType);
-                            }
-
-                        }
-                        else
-                            color24 = 0x808080;
-                    }
-
-                    if ((color24 != 0xff00ff) && (color24 != 0) && ((check) || (showmap) || (this.full)))
-                    {
-                        if (heightmap)
-                        {
-                            int i2 = height;
-                            //if offsetByZloc
-                            i2 -= this.zCoord();
-                            //else
-                            //i2 -= 64;
-                            double sc = Math.log10(Math.abs(i2) / 8.0D + 1.0D) / 1.3D;
-                            int r = color24 / 0x10000;
-                            int g = (color24 - r * 0x10000) / 0x100;
-                            int b = (color24 - r * 0x10000 - g * 0x100);
-
-                            if (i2 >= 0)
-                            {
-                                r = (int)(sc * (0xff - r)) + r;
-                                g = (int)(sc * (0xff - g)) + g;
-                                b = (int)(sc * (0xff - b)) + b;
-                            }
-                            else
-                            {
-                                i2 = Math.abs(i2);
-                                r = r - (int)(sc * r);
-                                g = g - (int)(sc * g);
-                                b = b - (int)(sc * b);
-                            }
-
-                            color24 = r * 0x10000 + g * 0x100 + b;
-                        }
-
-                        int i3 = 255;
-
-                        if (lightmap || cavemap)
-                            i3 = data.a(startX + imageY, height+1, startZ - imageX, false) * 17;
-                        int min = 32;
-                        if(i3 < min)
-                        {
-                            i3 = min;
-                            if (cavemap)
-                                color24 = 0x222222;
-                        }
-                        if(!lightmap)
-                        {
-                            i3 *= 0.5;
-                            i3 += 64;
-                        }
-                        else if(cavemap)
-                            i3 *= 1.3f;
-                        
-                        if (i3 > 255) i3 = 255;
-                        color24 = i3 * 0x1000000 + color24;
+                    if (check || showmap || this.full) {
+                        color24 = shadeBlock(data, startX + imageY, startZ - imageX);
                     }
 
                     this.map[this.lZoom].setRGB(imageX, imageY, color24);
@@ -666,7 +672,7 @@ public class ZanMinimap implements Runnable {
                 while (playerExists() && active)
                 {
                     if (this.enabled && !this.hide)
-                        if (((this.lastX != this.xCoord()) || (this.lastZ != this.yCoord()) || (this.timer > 300)) && safeToRun())
+                        if (((this.lastX != this.playerXCoord()) || (this.lastZ != this.playerZCoord()) || (this.timer > 300)) && safeToRun())
                             try
                             {
                                 this.mapCalc();
@@ -817,7 +823,7 @@ public class ZanMinimap implements Runnable {
     public String world = "";
 
     /** Is the scrollbar being dragged? */
-    public boolean scrClick = false;
+    public boolean scrollClick = false;
 
     /** Scrollbar drag start position */
     public int scrStart = 0;
@@ -868,6 +874,8 @@ public class ZanMinimap implements Runnable {
     public boolean netherpoints;
 
     public boolean cavemap = false;
+    
+    public ArrayList<Integer> colorsequence;
 
     public static ZanMinimap instance;
 
@@ -883,6 +891,17 @@ public class ZanMinimap implements Runnable {
         this.map[1] = new BufferedImage(64, 64, 2);
         this.map[2] = new BufferedImage(128, 128, 2);
         this.map[3] = new BufferedImage(256, 256, 2);
+
+        int[] colorray = new int[] { 0xfe0000, 0xfe8000, 0xfefe00,
+                0x80fe00, 0x00fe00, 0x00fe80, 0x00fefe, 0x0000fe, 0x8000fe,
+                0xfe00fe, 0xfefefe, 0x7f0000, 0x7f4000, 0x7f7f00, 0x407f00,
+                0x007f00, 0x007f40, 0x007f7f, 0x00007f, 0x40007f, 0x7f007f,
+                0x7f7f7f
+        };
+        colorsequence = new ArrayList<Integer>();
+        for (int color:colorray) {
+            colorsequence.add(color);
+        }
 
         for (int m = 0; m < 2; m++)
             for (int n = 0; n < 10; n++)
@@ -1313,7 +1332,6 @@ public class ZanMinimap implements Runnable {
         }
         catch (IOException e)
         {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
@@ -1472,16 +1490,16 @@ public class ZanMinimap implements Runnable {
                 else
                     this.q = this.tex(this.map[this.zoom]);
 
-                drawPre();
+                draw_startQuads();
                 this.setMap(scWidth);
-                drawPost();
+                draw_finish();
 
                 try
                 {
                     this.disp(this.img("/minimap.png"));
-                    drawPre();
+                    draw_startQuads();
                     this.setMap(scWidth);
-                    drawPost();
+                    draw_finish();
                 }
                 catch (Exception localException)
                 {
@@ -1495,9 +1513,9 @@ public class ZanMinimap implements Runnable {
                     GL11.glTranslatef(scWidth - 32.0F, 37.0F, 0.0F);
                     GL11.glRotatef(-this.direction - 90.0F, 0.0F, 0.0F, 1.0F);
                     GL11.glTranslatef(-(scWidth - 32.0F), -37.0F, 0.0F);
-                    drawPre();
+                    draw_startQuads();
                     this.setMap(scWidth);
-                    drawPost();
+                    draw_finish();
                 }
                 catch (Exception localException)
                 {
@@ -1531,9 +1549,9 @@ public class ZanMinimap implements Runnable {
                 else
                     GL11.glTranslatef(-0.5f, -0.5f, 0.0f);
 
-                drawPre();
+                draw_startQuads();
                 this.setMap(scWidth);
-                drawPost();
+                draw_finish();
                 GL11.glPopMatrix();
                 GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
@@ -1545,8 +1563,8 @@ public class ZanMinimap implements Runnable {
                 {
                     if (pt.enabled)
                     {
-                        int wayX = this.xCoord() - (pt.x / (netherpoints ? 8 : 1));
-                        int wayY = this.yCoord() - (pt.z / (netherpoints ? 8 : 1));
+                        int wayX = this.playerXCoord() - (pt.x / (netherpoints ? 8 : 1));
+                        int wayY = this.playerZCoord() - (pt.z / (netherpoints ? 8 : 1));
                         float locate = (float)Math.toDegrees(Math.atan2(wayX, wayY));
                         double hypot = Math.sqrt((wayX * wayX) + (wayY * wayY)) / (Math.pow(2, this.zoom) / 2);
 
@@ -1561,9 +1579,9 @@ public class ZanMinimap implements Runnable {
                                 GL11.glRotatef(-locate + this.direction + 180.0F, 0.0F, 0.0F, 1.0F);
                                 GL11.glTranslatef(-(scWidth - 32.0F), -37.0F, 0.0F);
                                 GL11.glTranslated(0.0D, -34.0D, 0.0D);
-                                drawPre();
+                                draw_startQuads();
                                 this.setMap(scWidth);
-                                drawPost();
+                                draw_finish();
                             }
                             catch (Exception localException)
                             {
@@ -1581,8 +1599,8 @@ public class ZanMinimap implements Runnable {
                 {
                     if (pt.enabled)
                     {
-                        int wayX = this.xCoord() - (pt.x / (netherpoints ? 8 : 1));
-                        int wayY = this.yCoord() - (pt.z / (netherpoints ? 8 : 1));
+                        int wayX = this.playerXCoord() - (pt.x / (netherpoints ? 8 : 1));
+                        int wayY = this.playerZCoord() - (pt.z / (netherpoints ? 8 : 1));
                         float locate = (float)Math.toDegrees(Math.atan2(wayX, wayY));
                         double hypot = Math.sqrt((wayX * wayX) + (wayY * wayY)) / (Math.pow(2, this.zoom) / 2);
 
@@ -1600,9 +1618,9 @@ public class ZanMinimap implements Runnable {
                                 GL11.glTranslated(0.0D, hypot, 0.0D);
                                 GL11.glTranslatef(-(scWidth - 32.0F), -37.0F, 0.0F);
                                 GL11.glTranslated(0.0D, -hypot, 0.0D);
-                                drawPre();
+                                draw_startQuads();
                                 this.setMap(scWidth);
-                                drawPost();
+                                draw_finish();
                             }
                             catch (Exception localException)
                             {
@@ -1622,12 +1640,12 @@ public class ZanMinimap implements Runnable {
     private void renderMapFull(int scWidth, int scHeight)
     {
         this.q = this.tex(this.map[this.zoom]);
-        drawPre();
-        ldrawone((scWidth + 5) / 2 - 128, (scHeight + 5) / 2 + 128, 1.0D, 0.0D, 1.0D);
-        ldrawone((scWidth + 5) / 2 + 128, (scHeight + 5) / 2 + 128, 1.0D, 1.0D, 1.0D);
-        ldrawone((scWidth + 5) / 2 + 128, (scHeight + 5) / 2 - 128, 1.0D, 1.0D, 0.0D);
-        ldrawone((scWidth + 5) / 2 - 128, (scHeight + 5) / 2 - 128, 1.0D, 0.0D, 0.0D);
-        drawPost();
+        draw_startQuads();
+        ldraw_addVertexWithUV((scWidth + 5) / 2 - 128, (scHeight + 5) / 2 + 128, 1.0D, 0.0D, 1.0D);
+        ldraw_addVertexWithUV((scWidth + 5) / 2 + 128, (scHeight + 5) / 2 + 128, 1.0D, 1.0D, 1.0D);
+        ldraw_addVertexWithUV((scWidth + 5) / 2 + 128, (scHeight + 5) / 2 - 128, 1.0D, 1.0D, 0.0D);
+        ldraw_addVertexWithUV((scWidth + 5) / 2 - 128, (scHeight + 5) / 2 - 128, 1.0D, 0.0D, 0.0D);
+        draw_finish();
 
         try
         {
@@ -1636,12 +1654,12 @@ public class ZanMinimap implements Runnable {
             GL11.glTranslatef((scWidth + 5) / 2, (scHeight + 5) / 2, 0.0F);
             GL11.glRotatef(-this.direction - 90.0F, 0.0F, 0.0F, 1.0F);
             GL11.glTranslatef(-((scWidth + 5) / 2), -((scHeight + 5) / 2), 0.0F);
-            drawPre();
-            ldrawone((scWidth + 5) / 2 - 32, (scHeight + 5) / 2 + 32, 1.0D, 0.0D, 1.0D);
-            ldrawone((scWidth + 5) / 2 + 32, (scHeight + 5) / 2 + 32, 1.0D, 1.0D, 1.0D);
-            ldrawone((scWidth + 5) / 2 + 32, (scHeight + 5) / 2 - 32, 1.0D, 1.0D, 0.0D);
-            ldrawone((scWidth + 5) / 2 - 32, (scHeight + 5) / 2 - 32, 1.0D, 0.0D, 0.0D);
-            drawPost();
+            draw_startQuads();
+            ldraw_addVertexWithUV((scWidth + 5) / 2 - 32, (scHeight + 5) / 2 + 32, 1.0D, 0.0D, 1.0D);
+            ldraw_addVertexWithUV((scWidth + 5) / 2 + 32, (scHeight + 5) / 2 + 32, 1.0D, 1.0D, 1.0D);
+            ldraw_addVertexWithUV((scWidth + 5) / 2 + 32, (scHeight + 5) / 2 - 32, 1.0D, 1.0D, 0.0D);
+            ldraw_addVertexWithUV((scWidth + 5) / 2 - 32, (scHeight + 5) / 2 - 32, 1.0D, 0.0D, 0.0D);
+            draw_finish();
         }
         catch (Exception localException)
         {
@@ -1676,15 +1694,17 @@ public class ZanMinimap implements Runnable {
         int MouseX = getMouseX(scWidth);
         int MouseY = getMouseY(scHeight);
 
-        if (Mouse.getEventButtonState() && Mouse.getEventButton() == 0)
-            if (!this.lfclick)
-            {
-                set = true;
+        if (Mouse.getEventButtonState()) {
+            if (Mouse.getEventButton() == 0) {
+                if (!this.lfclick)
+                    set = true;
+                else
+                    click = true;
                 this.lfclick = true;
             }
-            else
-                click = true;
-        else if (this.lfclick) this.lfclick = false;
+        } else {
+            this.lfclick = false;
+        }
 
         String head = "Waypoints";
         String opt1 = "Exit Menu";
@@ -1868,7 +1888,7 @@ public class ZanMinimap implements Runnable {
                         {
                             this.next = 6;
                             this.way = this.inStr;
-                            this.inStr = (netherpoints ? "n" : "") + Integer.toString(this.xCoord());
+                            this.inStr = (netherpoints ? "n" : "") + Integer.toString(this.playerXCoord());
                         }
                         else if (this.iMenu == 6)
                         {
@@ -1883,7 +1903,7 @@ public class ZanMinimap implements Runnable {
                                 this.next = 3;
                             }
 
-                            this.inStr = (netherpoints ? "n" : "") + Integer.toString(this.yCoord());
+                            this.inStr = (netherpoints ? "n" : "") + Integer.toString(this.playerZCoord());
                         }
                         else
                         {
@@ -1953,7 +1973,7 @@ public class ZanMinimap implements Runnable {
             if (this.iMenu == 6)
                 try
                 {
-                    if (toInt(this.inStr) == this.xCoord() * (netherpoints ? 8 : 1))
+                    if (toInt(this.inStr) == this.playerXCoord() * (netherpoints ? 8 : 1))
                         this.write("(Current)", (int)leftX + border + this.chkLen(this.inStr) + 5, (int)topY + border, 0xa0a0a0);
                 }
                 catch (Exception localException)
@@ -1961,7 +1981,7 @@ public class ZanMinimap implements Runnable {
             else if (this.iMenu == 7)
                 try
                 {
-                    if (toInt(this.inStr) == this.yCoord() * (netherpoints ? 8 : 1))
+                    if (toInt(this.inStr) == this.playerZCoord() * (netherpoints ? 8 : 1))
                         this.write("(Current)", (int)leftX + border + this.chkLen(this.inStr) + 5, (int)topY + border, 0xa0a0a0);
                 }
                 catch (Exception localException)
@@ -1983,16 +2003,16 @@ public class ZanMinimap implements Runnable {
         {
             GL11.glPushMatrix();
             GL11.glScalef(0.5f, 0.5f, 1.0f);
-            String xy = this.dCoord(xCoord()) + ", " + this.dCoord(yCoord());
+            String xy = this.dCoord(playerXCoord()) + ", " + this.dCoord(playerZCoord());
             int m = this.chkLen(xy) / 2;
             this.write(xy, scWidth * 2 - 32 * 2 - m, 146, 0xffffff);
-            xy = Integer.toString(this.zCoord());
+            xy = Integer.toString(this.playerYCoord());
             m = this.chkLen(xy) / 2;
             this.write(xy, scWidth * 2 - 32 * 2 - m, 156, 0xffffff);
             GL11.glPopMatrix();
         }
         else
-            this.write("(" + this.dCoord(xCoord()) + ", " + this.zCoord() + ", " + this.dCoord(yCoord()) + ") " + (int)this.direction + "'", 2, 10, 0xffffff);
+            this.write("(" + this.dCoord(playerXCoord()) + ", " + this.playerYCoord() + ", " + this.dCoord(playerZCoord()) + ") " + (int)this.direction + "'", 2, 10, 0xffffff);
     }
 
     private void drawRound(int paramInt1)
@@ -2000,9 +2020,9 @@ public class ZanMinimap implements Runnable {
         try
         {
             this.disp(this.img("/roundmap.png"));
-            drawPre();
+            draw_startQuads();
             this.setMap(paramInt1);
-            drawPost();
+            draw_finish();
         }
         catch (Exception localException)
         {
@@ -2012,12 +2032,12 @@ public class ZanMinimap implements Runnable {
 
     private void drawBox(double leftX, double rightX, double topY, double botY)
     {
-        drawPre();
-        ldrawtwo(leftX, botY, 0.0D);
-        ldrawtwo(rightX, botY, 0.0D);
-        ldrawtwo(rightX, topY, 0.0D);
-        ldrawtwo(leftX, topY, 0.0D);
-        drawPost();
+        draw_startQuads();
+        ldraw_setColor(leftX, botY, 0.0D);
+        ldraw_setColor(rightX, botY, 0.0D);
+        ldraw_setColor(rightX, topY, 0.0D);
+        ldraw_setColor(leftX, topY, 0.0D);
+        draw_finish();
     }
 
     private void drawOptions(double rightX, double topY, int MouseX, int MouseY, boolean set, boolean click)
@@ -2026,7 +2046,7 @@ public class ZanMinimap implements Runnable {
         {
             if (min < 0) min = 0;
 
-            if (!Mouse.isButtonDown(0) && scrClick) scrClick = false;
+            if (!Mouse.isButtonDown(0) && scrollClick) scrollClick = false;
 
             if (MouseX > (rightX - 10) && MouseX < (rightX - 2) && MouseY > (topY + 1) && MouseY < (topY + 10))
             {
@@ -2042,12 +2062,12 @@ public class ZanMinimap implements Runnable {
             else
                 GL11.glColor4f(1.0f, 1.0f, 1.0f, 0.3f);
 
-            drawPre();
-            ldrawtwo(rightX - 10, topY + 10, 0.0D);
-            ldrawtwo(rightX - 2, topY + 10, 0.0D);
-            ldrawtwo(rightX - 6, topY + 1, 0.0D);
-            ldrawtwo(rightX - 6, topY + 1, 0.0D);
-            drawPost();
+            draw_startQuads();
+            ldraw_setColor(rightX - 10, topY + 10, 0.0D);
+            ldraw_setColor(rightX - 2, topY + 10, 0.0D);
+            ldraw_setColor(rightX - 6, topY + 1, 0.0D);
+            ldraw_setColor(rightX - 6, topY + 1, 0.0D);
+            draw_finish();
 
             if (wayPts.size() > 9)
             {
@@ -2059,14 +2079,14 @@ public class ZanMinimap implements Runnable {
                 sMax = 67;
             }
 
-            if (MouseX > rightX - 10 && MouseX < rightX - 2 && MouseY > topY + 12 + sMin && MouseY < topY + 12 + sMin + sMax || scrClick)
+            if (MouseX > rightX - 10 && MouseX < rightX - 2 && MouseY > topY + 12 + sMin && MouseY < topY + 12 + sMin + sMax || scrollClick)
             {
-                if (Mouse.isButtonDown(0) && !scrClick)
+                if (Mouse.isButtonDown(0) && !scrollClick)
                 {
-                    scrClick = true;
+                    scrollClick = true;
                     scrStart = MouseY;
                 }
-                else if (scrClick && wayPts.size() > 9)
+                else if (scrollClick && wayPts.size() > 9)
                 {
                     int offset = MouseY - scrStart;
 
@@ -2110,12 +2130,12 @@ public class ZanMinimap implements Runnable {
             else
                 GL11.glColor4f(1.0f, 1.0f, 1.0f, 0.3f);
 
-            drawPre();
-            ldrawtwo(rightX - 6, topY + 90, 0.0D);
-            ldrawtwo(rightX - 6, topY + 90, 0.0D);
-            ldrawtwo(rightX - 2, topY + 81, 0.0D);
-            ldrawtwo(rightX - 10, topY + 81, 0.0D);
-            drawPost();
+            draw_startQuads();
+            ldraw_setColor(rightX - 6, topY + 90, 0.0D);
+            ldraw_setColor(rightX - 6, topY + 90, 0.0D);
+            ldraw_setColor(rightX - 2, topY + 81, 0.0D);
+            ldraw_setColor(rightX - 10, topY + 81, 0.0D);
+            draw_finish();
         }
 
         double leftX = rightX - 30;
@@ -2212,9 +2232,14 @@ public class ZanMinimap implements Runnable {
                 if (MouseX > leftCl && MouseX < rightCl && MouseY > topY && MouseY < botY && this.iMenu == 3)
                     if (set)
                     {
-                        wayPts.get(i).red = generator.nextFloat();
-                        wayPts.get(i).green = generator.nextFloat();
-                        wayPts.get(i).blue = generator.nextFloat();
+                        Waypoint waypoint = wayPts.get(i);
+                        int color24 = ((int)(waypoint.red * 0xff) << 16) + ((int)(waypoint.green * 0xff) << 8) + ((int)(waypoint.blue * 0xff));
+                        int index = colorsequence.indexOf(color24);
+                        index = (index + 1) % colorsequence.size();
+                        color24 = colorsequence.get(index);
+                        waypoint.red = (float)((color24 & 0xff0000) >> 16) / (float)0xff;
+                        waypoint.green = (float)((color24 & 0xff00) >> 8) / (float)0xff;
+                        waypoint.blue = (float)(color24 & 0xff) / (float)0xff;
                         saveWaypoints();
                     }
 
@@ -2344,7 +2369,6 @@ public class ZanMinimap implements Runnable {
         else if (i == 7) return color;
         else if (i == 8) return netherpoints;
         else if (i == 9) return cavemap;
-        // TODO: else if (i==7) return aprilfools;
         throw new IllegalArgumentException("bad option number " + i);
     }
 
@@ -2391,7 +2415,6 @@ public class ZanMinimap implements Runnable {
                 this.error = "Cavemap zoom (2.0x)";
             }
         }
-        // TODO: else if (i==7) aprilfools = !aprilfools;
         else
             throw new IllegalArgumentException("bad option number " + i);
         this.saveAll();
@@ -2401,10 +2424,10 @@ public class ZanMinimap implements Runnable {
 
     private void setMap(int paramInt1)
     {
-        ldrawthree(paramInt1 - 64.0D, 64.0D + 5.0D, 1.0D, 0.0D, 1.0D);
-        ldrawthree(paramInt1, 64.0D + 5.0D, 1.0D, 1.0D, 1.0D);
-        ldrawthree(paramInt1, 5.0D, 1.0D, 1.0D, 0.0D);
-        ldrawthree(paramInt1 - 64.0D, 5.0D, 1.0D, 0.0D, 0.0D);
+        ldraw_addVertexWithUV(paramInt1 - 64.0D, 64.0D + 5.0D, 1.0D, 0.0D, 1.0D);
+        ldraw_addVertexWithUV(paramInt1, 64.0D + 5.0D, 1.0D, 1.0D, 1.0D);
+        ldraw_addVertexWithUV(paramInt1, 5.0D, 1.0D, 1.0D, 0.0D);
+        ldraw_addVertexWithUV(paramInt1 - 64.0D, 5.0D, 1.0D, 0.0D, 0.0D);
     }
 
     private void drawDirections(int scWidth)
