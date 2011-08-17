@@ -840,7 +840,7 @@ public class Menu {
         }
         else
             throw new IllegalArgumentException("bad option number " + i);
-        conf.saveAll();
+        conf.saveConfig();
         mapcalc.timer = 50000;
 
     }
@@ -856,15 +856,23 @@ public class Menu {
     }
     
     void tick(int scWidth, int scHeight) {
+        if (iMenu == 1 && (!conf.welcome))
+            iMenu = 0;
 
+        if (ztimer == 0 && error.length() > 0)
+            ztimer = 500;
 
-        if ((!error.equals("")) && (ztimer == 0)) ztimer = 500;
+        if (ztimer > 0)
+            ztimer -= 1;
 
-        if (ztimer > 0) ztimer -= 1;
+        if (ztimer == 0 && error.length() > 0)
+            error = "";
 
-        if (fudge > 0) fudge -= 1;
+        if (fudge > 0)
+            fudge -= 1;
 
-        if ((ztimer == 0) && (!error.equals(""))) error = "";
+        if (obfhub.worldIsNull() && iMenu > 1)
+            iMenu = 0;
 
         if (conf.enabled)
         {

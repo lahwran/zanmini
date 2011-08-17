@@ -140,56 +140,7 @@ public class Config {
         }
     }
     
-    public void readConfig() throws IOException {
-        File settingsFile = new File(minimap.obfhub.getAppDir("minecraft"), "zan.settings");
-        
-        if (settingsFile.exists())
-        {
-            BufferedReader in = new BufferedReader(new FileReader(settingsFile));
-            String sCurrentLine;
-            while ((sCurrentLine = in.readLine()) != null)
-            {
-                String[] curLine = sCurrentLine.split(":");
-
-                if (curLine[0].equals("Show Minimap"))
-                    squaremap = Boolean.parseBoolean(curLine[1]);
-                else if (curLine[0].equals("Show Coordinates"))
-                    coords = Boolean.parseBoolean(curLine[1]);
-                else if (curLine[0].equals("Dynamic Lighting"))
-                    lightmap = Boolean.parseBoolean(curLine[1]);
-                else if (curLine[0].equals("Terrain Depth"))
-                    heightmap = Boolean.parseBoolean(curLine[1]);
-                else if (curLine[0].equals("Welcome Message"))
-                    welcome = Boolean.parseBoolean(curLine[1]);
-                else if (curLine[0].equals("Zoom Key"))
-                    zoomKey = Keyboard.getKeyIndex(curLine[1]);
-                else if (curLine[0].equals("Menu Key"))
-                    menuKey = Keyboard.getKeyIndex(curLine[1]);
-                else if (curLine[0].equals("Threading"))
-                    threading = Boolean.parseBoolean(curLine[1]);
-                else if (curLine[0].equals("Color"))
-                    color = Boolean.parseBoolean(curLine[1]);
-                else if (curLine[0].equals("Netherpoints"))
-                    netherpoints = Boolean.parseBoolean(curLine[1]);
-                else if (curLine[0].equals("Cavemap"))
-                    cavemap = Boolean.parseBoolean(curLine[1]);
-
-                if(cavemap && !(lightmap ^ heightmap))
-                {
-                    lightmap = true;
-                    heightmap = false;
-                }
-
-                if(cavemap)
-                {
-                    this.full = false;
-                    this.zoom=1;
-                    minimap.menu.error = "Cavemap zoom (2.0x)";
-                }
-            }
-            in.close();
-        }
-    }
+    
 
     public void initWaypointColors() {
         int[] colorray = new int[] { 0xfe0000, 0xfe8000, 0xfefe00,
@@ -566,12 +517,62 @@ public class Config {
       return list;
     }
 
-    void saveAll()
-    {
+    public void readConfig() throws IOException {
         File settingsFile = new File(minimap.obfhub.getAppDir("minecraft"), "zan.settings");
-
-        try
+        
+        if (settingsFile.exists())
         {
+            BufferedReader in = new BufferedReader(new FileReader(settingsFile));
+            String sCurrentLine;
+            while ((sCurrentLine = in.readLine()) != null)
+            {
+                String[] curLine = sCurrentLine.split(":");
+
+                if (curLine[0].equals("Show Minimap"))
+                    squaremap = Boolean.parseBoolean(curLine[1]);
+                else if (curLine[0].equals("Show Coordinates"))
+                    coords = Boolean.parseBoolean(curLine[1]);
+                else if (curLine[0].equals("Dynamic Lighting"))
+                    lightmap = Boolean.parseBoolean(curLine[1]);
+                else if (curLine[0].equals("Terrain Depth"))
+                    heightmap = Boolean.parseBoolean(curLine[1]);
+                else if (curLine[0].equals("Welcome Message"))
+                    welcome = Boolean.parseBoolean(curLine[1]);
+                else if (curLine[0].equals("Zoom Key"))
+                    zoomKey = Keyboard.getKeyIndex(curLine[1]);
+                else if (curLine[0].equals("Menu Key"))
+                    menuKey = Keyboard.getKeyIndex(curLine[1]);
+                else if (curLine[0].equals("Threading"))
+                    threading = Boolean.parseBoolean(curLine[1]);
+                else if (curLine[0].equals("Color"))
+                    color = Boolean.parseBoolean(curLine[1]);
+                else if (curLine[0].equals("Netherpoints"))
+                    netherpoints = Boolean.parseBoolean(curLine[1]);
+                else if (curLine[0].equals("Cavemap"))
+                    cavemap = Boolean.parseBoolean(curLine[1]);
+
+                if(cavemap && !(lightmap ^ heightmap))
+                {
+                    lightmap = true;
+                    heightmap = false;
+                }
+
+                if(cavemap)
+                {
+                    this.full = false;
+                    this.zoom=1;
+                    minimap.menu.error = "Cavemap zoom (2.0x)";
+                }
+            }
+            in.close();
+        }
+    }
+
+    void saveConfig()
+    {
+        try {
+            File settingsFile = new File(ObfHub.getAppDir("minecraft"), "zan.settings");
+    
             PrintWriter out = new PrintWriter(new FileWriter(settingsFile));
             out.println("Show Minimap:" + Boolean.toString(squaremap));
             out.println("Show Coordinates:" + Boolean.toString(coords));
@@ -584,13 +585,10 @@ public class Config {
             out.println("Color:" + Boolean.toString(color));
             out.println("Netherpoints:" + Boolean.toString(netherpoints));
             out.println("Cavemap:" + Boolean.toString(cavemap));
-            // out.println("AprF:" +
-            // Boolean.toString(haveLoadedBefore?aprilfools:true));
             out.close();
-        }
-        catch (Exception local)
-        {
+        } catch (IOException e) {
             minimap.obfhub.chatInfo("§EError Saving Settings");
+            e.printStackTrace();
         }
     }
 
@@ -610,62 +608,51 @@ public class Config {
 
             out.close();
         }
-        catch (Exception local)
+        catch (Exception e)
         {
             minimap.obfhub.chatInfo("§EError Saving Waypoints");
+            e.printStackTrace();
         }
     }
 
     void loadWaypoints()
     {
-        String j;
-        String mapName = minimap.obfhub.getMapName();
-        if (mapName.equals("MpServer"))
-        {
-            String[] i = minimap.obfhub.getServerName().toLowerCase().split(":");
-            j = i[0];
-        }
-        else
-            j = mapName;
+        wayPts = new ArrayList<Waypoint>();
+        File settingsFile = new File(ObfHub.getAppDir("minecraft"), minimap.world + ".points");
 
-        if (!minimap.world.equals(j))
+        try
         {
-            minimap.world = j;
-            minimap.menu.iMenu = 1;
-            wayPts = new ArrayList<Waypoint>();
-            File settingsFile = new File(ObfHub.getAppDir("minecraft"), minimap.world + ".points");
-
-            try
+            if (settingsFile.exists())
             {
-                if (settingsFile.exists())
+                BufferedReader in = new BufferedReader(new FileReader(settingsFile));
+                String sCurrentLine;
+
+                while ((sCurrentLine = in.readLine()) != null)
                 {
-                    BufferedReader in = new BufferedReader(new FileReader(settingsFile));
-                    String sCurrentLine;
+                    String[] curLine = sCurrentLine.split(":");
 
-                    while ((sCurrentLine = in.readLine()) != null)
-                    {
-                        String[] curLine = sCurrentLine.split(":");
-
-                        if (curLine.length == 4)
-                            wayPts.add(new Waypoint(curLine[0], Integer.parseInt(curLine[1]), Integer.parseInt(curLine[2]), Boolean.parseBoolean(curLine[3])));
-                        else
-                            wayPts.add(new Waypoint(curLine[0], Integer.parseInt(curLine[1]), Integer.parseInt(curLine[2]), Boolean.parseBoolean(curLine[3]), Float.parseFloat(curLine[4]), Float.parseFloat(curLine[5]), Float.parseFloat(curLine[6])));
-                    }
-
-                    in.close();
-                    minimap.obfhub.chatInfo("§EWaypoints loaded for " + minimap.world);
+                    if (curLine.length == 4)
+                        wayPts.add(new Waypoint(curLine[0], Integer.parseInt(curLine[1]), Integer.parseInt(curLine[2]), Boolean.parseBoolean(curLine[3])));
+                    else
+                        wayPts.add(new Waypoint(curLine[0], Integer.parseInt(curLine[1]), Integer.parseInt(curLine[2]), Boolean.parseBoolean(curLine[3]), Float.parseFloat(curLine[4]), Float.parseFloat(curLine[5]), Float.parseFloat(curLine[6])));
                 }
-                else
-                    minimap.obfhub.chatInfo("§EError: No waypoints exist for this world/server.");
+
+                in.close();
+                minimap.obfhub.chatInfo("§EWaypoints loaded for " + minimap.world);
             }
-            catch (Exception local)
-            {
-                minimap.obfhub.chatInfo("§EError Loading Waypoints");
-            }
+            else
+                minimap.obfhub.chatInfo("§EError: No waypoints exist for this world/server.");
+        }
+        catch (Exception local)
+        {
+            minimap.obfhub.chatInfo("§EError Loading Waypoints");
         }
     }
     
-    void setZoom()
+    void tick() {
+    }
+    
+    void nextZoom()
     {
         if (minimap.menu.fudge > 0) return;
 

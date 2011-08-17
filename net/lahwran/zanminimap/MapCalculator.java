@@ -192,7 +192,7 @@ public class MapCalculator implements Runnable {
     }
     private void mapCalc()
     {
-        if(!minimap.safeToRun()) return;
+        if(!obfhub.safeToRun()) return;
         try
         {
             fd data = obfhub.getWorld();
@@ -210,7 +210,7 @@ public class MapCalculator implements Runnable {
             {
                 for (int imageX = 0; imageX < 32 * multi; imageX++)
                 {
-                    if(!minimap.safeToRun()) return;
+                    if(!obfhub.safeToRun()) return;
                     color24 = 0;
                     boolean check = false;
 
@@ -246,7 +246,7 @@ public class MapCalculator implements Runnable {
                 while (obfhub.playerExists() && active)
                 {
                     if (conf.enabled && !conf.hide)
-                        if (((this.lastX != obfhub.playerXCoord()) || (this.lastZ != obfhub.playerZCoord()) || (this.timer > 300)) && minimap.safeToRun())
+                        if (((this.lastX != obfhub.playerXCoord()) || (this.lastZ != obfhub.playerZCoord()) || (this.timer > 300)) && obfhub.safeToRun())
                             try
                             {
                                 this.mapCalc();

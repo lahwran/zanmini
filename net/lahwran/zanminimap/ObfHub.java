@@ -168,7 +168,7 @@ public class ObfHub {
         return new int[] {scSize.a(), scSize.b()};
     }
 
-    void showGenericGui()
+    void showPlaceholderGui()
     {
         this.game.a(new da());
     }
@@ -343,5 +343,21 @@ public class ObfHub {
     }
     public boolean worldIsNull() {
         return game.r == null;
+    }
+    
+    public String getWorldName() {
+        String worldname = getMapName();
+        if (worldname.equals("MpServer"))
+        {
+            //This removes the port
+            String[] split = getServerName().toLowerCase().split(":");
+            worldname = split[0];
+        }
+        return worldname;
+    }
+    
+    public void tick() {
+        updateLang();
+        updateRenderEngine();
     }
 }
