@@ -76,7 +76,7 @@ public class ZanMinimap {
     
 
     
-    void OnTickInGame(Minecraft mc)
+    public void OnTickInGame(Minecraft mc)
     {
         if (obfhub.game == null) obfhub.game = mc;
 

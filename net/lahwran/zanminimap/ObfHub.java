@@ -45,11 +45,9 @@ public class ObfHub {
     public ji renderEngine;
 
     private ZanMinimap minimap;
-    private Config conf;
 
     ObfHub(ZanMinimap minimap) {
         this.minimap = minimap;
-        conf = minimap.conf;
     }
 
     void chatInfo(String s)
@@ -221,9 +219,9 @@ public class ObfHub {
     String dCoord(int paramInt1)
     {
         if (paramInt1 < 0)
-            return (conf.netherpoints ? "n" : "") + "-" + Math.abs(paramInt1 + 1);
+            return (minimap.conf.netherpoints ? "n" : "") + "-" + Math.abs(paramInt1 + 1);
         else
-            return (conf.netherpoints ? "n" : "") + "+" + paramInt1;
+            return (minimap.conf.netherpoints ? "n" : "") + "+" + paramInt1;
     }
 
     int tex(BufferedImage paramImg)

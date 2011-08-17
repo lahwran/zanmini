@@ -121,8 +121,12 @@ public class Menu {
     
     void showMenu(int scWidth, int scHeight)
     {
-        if (iMenu <= 0) return;
+        GL11.glDisable(2929);
+        GL11.glEnable(3042);
+        GL11.glDepthMask(false);
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+        if (iMenu <= 0) return;
         int height;
         int maxSize = 0;
         int border = 2;
