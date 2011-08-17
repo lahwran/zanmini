@@ -738,8 +738,8 @@ public class ZanMinimap implements Runnable {
     /** Hide just the minimap */
     public boolean hide = false;
 
-    /** Was mouse down last render? */
-    public boolean lfclick = false;
+    /** Last click state, to prevent mouse bouncing/repeating */
+    public boolean leftbtndown = false, rightbtndown = false, middlebtndown = false;
 
     /** Toggle full screen map */
     public boolean full = false;
@@ -1689,21 +1689,39 @@ public class ZanMinimap implements Runnable {
         int height;
         int maxSize = 0;
         int border = 2;
-        boolean set = false;
-        boolean click = false;
         int MouseX = getMouseX(scWidth);
         int MouseY = getMouseY(scHeight);
+        
+        boolean leftclick = false;
+        boolean rightclick = false;
+        boolean middleclick = false;
 
         if (Mouse.getEventButtonState()) {
             if (Mouse.getEventButton() == 0) {
-                if (!this.lfclick)
-                    set = true;
-                else
-                    click = true;
-                this.lfclick = true;
+                if (!this.leftbtndown)
+                    leftclick = true;
+                this.leftbtndown = true;
+            } else {
+                this.leftbtndown = false;
+            }
+            if (Mouse.getEventButton() == 1) {
+                if (!this.rightbtndown)
+                    rightclick = true;
+                this.rightbtndown = true;
+            } else {
+                this.rightbtndown = false;
+            }
+            if (Mouse.getEventButton() == 2) {
+                if (!this.middlebtndown)
+                    middleclick = true;
+                this.middlebtndown = true;
+            } else {
+                this.middlebtndown = false;
             }
         } else {
-            this.lfclick = false;
+            this.leftbtndown = false;
+            this.rightbtndown = false;
+            this.middlebtndown = false;
         }
 
         String head = "Waypoints";
@@ -1770,8 +1788,8 @@ public class ZanMinimap implements Runnable {
             topY = centerY - (height - 1) / 2.0D * 10.0D - border;
             botY = centerY + (height - 1) / 2.0D * 10.0D + border;
             this.drawBox(leftX, rightX, topY, botY);
-            this.drawOptions(rightX - border, topY + border, MouseX, MouseY, set, click);
-            footer = this.drawFooter(centerX, centerY, height, opt1, opt2, opt3, border, MouseX, MouseY, set, click);
+            this.drawOptions(rightX - border, topY + border, MouseX, MouseY, leftclick, rightclick, middleclick);
+            footer = this.drawFooter(centerX, centerY, height, opt1, opt2, opt3, border, MouseX, MouseY, leftclick, rightclick, middleclick);
         }
 
         GL11.glEnable(3553);
@@ -2040,7 +2058,7 @@ public class ZanMinimap implements Runnable {
         draw_finish();
     }
 
-    private void drawOptions(double rightX, double topY, int MouseX, int MouseY, boolean set, boolean click)
+    private void drawOptions(double rightX, double topY, int MouseX, int MouseY, boolean leftclick, boolean rightclick, boolean middleclick)
     {
         if (this.iMenu > 2)
         {
@@ -2050,9 +2068,9 @@ public class ZanMinimap implements Runnable {
 
             if (MouseX > (rightX - 10) && MouseX < (rightX - 2) && MouseY > (topY + 1) && MouseY < (topY + 10))
             {
-                if (set || click)
+                if (leftbtndown)
                 {
-                    if (set && min > 0) min--;
+                    if (leftclick && min > 0) min--;
 
                     GL11.glColor4f(1.0f, 1.0f, 1.0f, 0.7f);
                 }
@@ -2118,9 +2136,9 @@ public class ZanMinimap implements Runnable {
 
             if (MouseX > rightX - 10 && MouseX < rightX - 2 && MouseY > topY + 81 && MouseY < topY + 90)
             {
-                if (set || click)
+                if (leftbtndown)
                 {
-                    if (set && min < wayPts.size() - 9) min++;
+                    if (leftclick && min < wayPts.size() - 9) min++;
 
                     GL11.glColor4f(1.0f, 1.0f, 1.0f, 0.7f);
                 }
@@ -2179,9 +2197,9 @@ public class ZanMinimap implements Runnable {
             botY = topY + 9;
 
             if (MouseX > leftX && MouseX < rightX && MouseY > topY && MouseY < botY && this.iMenu < 5)
-                if (set || click)
+                if (leftbtndown)
                 {
-                    if (set)
+                    if (leftclick)
                     {
                         if (this.iMenu == 2)
                             this.setOptions(i);
@@ -2230,16 +2248,29 @@ public class ZanMinimap implements Runnable {
             if (iMenu > 2 && !(iMenu == 4 && this.next == 3))
             {
                 if (MouseX > leftCl && MouseX < rightCl && MouseY > topY && MouseY < botY && this.iMenu == 3)
-                    if (set)
+                    if (leftclick || rightclick)
                     {
                         Waypoint waypoint = wayPts.get(i);
                         int color24 = ((int)(waypoint.red * 0xff) << 16) + ((int)(waypoint.green * 0xff) << 8) + ((int)(waypoint.blue * 0xff));
                         int index = colorsequence.indexOf(color24);
-                        index = (index + 1) % colorsequence.size();
+                        int direction = 0;
+                        if (leftclick)
+                            direction = 1;
+                        else if (rightclick)
+                            direction = -1;
+                        index = (index + direction) % colorsequence.size();
+                        if (index < 0)
+                            index += colorsequence.size();
                         color24 = colorsequence.get(index);
                         waypoint.red = (float)((color24 & 0xff0000) >> 16) / (float)0xff;
                         waypoint.green = (float)((color24 & 0xff00) >> 8) / (float)0xff;
                         waypoint.blue = (float)(color24 & 0xff) / (float)0xff;
+                        saveWaypoints();
+                    } else if (middleclick) {
+                        Waypoint waypoint = wayPts.get(i);
+                        waypoint.red = generator.nextFloat();
+                        waypoint.green = generator.nextFloat();
+                        waypoint.blue = generator.nextFloat();
                         saveWaypoints();
                     }
 
@@ -2255,7 +2286,7 @@ public class ZanMinimap implements Runnable {
         this.saveWaypoints();
     }
 
-    private int drawFooter(int centerX, int centerY, int m, String opt1, String opt2, String opt3, int border, int MouseX, int MouseY, boolean set, boolean click)
+    private int drawFooter(int centerX, int centerY, int m, String opt1, String opt2, String opt3, int border, int MouseX, int MouseY, boolean leftclick, boolean rightclick, boolean middleclick)
     {
         int footer = this.chkLen(opt1);
 
@@ -2275,9 +2306,9 @@ public class ZanMinimap implements Runnable {
         }
 
         if (MouseX > leftX && MouseX < rightX && MouseY > topY && MouseY < botY && this.iMenu < 4)
-            if (set || click)
+            if (leftbtndown)
             {
-                if (set)
+                if (leftclick)
                 {
                     if (this.iMenu == 2)
                         setMenuNull();
@@ -2306,9 +2337,9 @@ public class ZanMinimap implements Runnable {
         }
 
         if (MouseX > leftX && MouseX < rightX && MouseY > topY && MouseY < botY && this.iMenu < 5)
-            if (set || click)
+            if (leftbtndown)
             {
-                if (set)
+                if (leftclick)
                 {
                     if (this.iMenu == 2 || this.iMenu == 4)
                         this.next = 3;
@@ -2334,9 +2365,9 @@ public class ZanMinimap implements Runnable {
             leftX = centerX + footer / 2 + border + 5;
 
             if (MouseX > leftX && MouseX < rightX && MouseY > topY && MouseY < botY && this.iMenu < 4)
-                if (set || click)
+                if (leftbtndown)
                 {
-                    if (set) this.next = 4;
+                    if (leftclick) this.next = 4;
 
                     GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
                 }
