@@ -853,9 +853,14 @@ public class Menu {
             conf.squaremap = !conf.squaremap;
         else if (i == 5)
             conf.welcome = !conf.welcome;
-        else if (i == 6)
+        else if (i == 6) {
             conf.threading = !conf.threading;
-        else if (i == 7) {
+            if (conf.threading) {
+                synchronized (mapcalc.zCalc) { 
+                    mapcalc.zCalc.notify();
+                }
+            }
+        } else if (i == 7) {
             if (!conf.cavemap)
                 conf.color = !conf.color;
         } else if (i == 8)

@@ -79,6 +79,7 @@ public class ZanMinimap {
 
         int dim = obfhub.getCurrentDimension();
         if (dim != obfhub.lastdim) {
+            mapcalc.timer = 400;
             conf.cavemap = dim < 0;
             conf.lightmap = true;
             conf.heightmap = !conf.cavemap;

@@ -236,24 +236,28 @@ public class MapCalculator implements Runnable {
                 }
                 this.timer++;
                 try {
-                    Thread.sleep(10);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                try {
-                    this.zCalc.wait();
+                    Thread.sleep(100);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             } else {
-                while (!conf.threading) {
-                    try {
-                        this.zCalc.wait();
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                try {
+                    synchronized(zCalc) {
+                        this.zCalc.wait(10000);
                     }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
+        }
+    }
+
+    /**
+     * Wake the thread up if it's sleeping.
+     */
+    void pokeThread() {
+        synchronized (zCalc) {
+            zCalc.notify();
         }
     }
 
@@ -265,13 +269,6 @@ public class MapCalculator implements Runnable {
             if (zCalc == null || !zCalc.isAlive()) {
                 zCalc = new Thread(this);
                 zCalc.start();
-            }
-            if (!obfhub.isGameOver() && !obfhub.isConflictWarning()) {
-                try {
-                    zCalc.notify();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
             }
         } else if (!conf.threading) {
             if (conf.enabled && !conf.hide)
