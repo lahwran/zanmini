@@ -5,7 +5,6 @@ package net.lahwran.zanminimap;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -26,63 +25,130 @@ import org.lwjgl.input.Keyboard;
  */
 public class Config {
 
-    /** Display anything at all, menu, etc.. */
+    /** 
+     * Whether to do anything. Is set at the beginning of each tick. Would normally
+     * be passed around from where it's determined early in a render tick, but
+     * the calculation thread needs to be able to see it.
+     */
     public boolean enabled = true;
 
-    /** Hide just the minimap */
+    /**
+     * Config option - True hides the minimap but not coords.
+     */
     public boolean hide = false;
 
-    /** Toggle full screen map */
+    /** 
+     * True shows the full screen map. 
+     */
     public boolean full = false;
 
-    /** Current level of zoom */
+    /**
+     * Current level of zoom
+     */
     public int zoom = 2;
 
-    /** Colour or black and white minimap? */
+    /**
+     * Config option - True to render a color minimap. False to render a black and white minimap.
+     */
     public boolean color = true;
 
-    /** Zoom key index */
+    /**
+     * Config option - Zoom key setting
+     */
     public int zoomKey = Keyboard.KEY_Z;
 
-    /** Menu key index */
+    /**
+     * Config option - Menu key setting
+     */
     public int menuKey = Keyboard.KEY_M;
 
-    /** Square map toggle */
+    /**
+     * Config option - True to display the map as square
+     */
     public boolean squaremap = false;
 
-    /** Show coordinates toggle */
+    /**
+     * Config option - True to show coordinates as text
+     */
     public boolean coords = true;
 
-    /** Dynamic lighting toggle */
+    /**
+     * Config option - True to show dynamic lighting
+     */
     public boolean lightmap = true;
 
-    /** Terrain depth toggle */
+    /**
+     * Config option - True to show terrain depth as black/white shading
+     */
     public boolean heightmap = true;
 
-    /** Show welcome message toggle */
+    /**
+     * Config option - True to show welcome message on startup
+     */
     public boolean welcome = true;
 
-    /** should we be running the calc thread? */
+    /**
+     * Config option - should we be running the calc thread?
+     */
     public boolean threading = false;
 
+    /**
+     * Config option - True to shift the waypoint display to locations they
+     * belong in in the nether
+     */
     public boolean netherpoints = false;
 
+    /**
+     * Config option - True to render the map as a cave map
+     */
     public boolean cavemap = false;
 
-    /** Waypoint names and data */
-    public ArrayList<Waypoint> wayPts;
+    /**
+     * Waypoint names and data
+     */
+    public ArrayList<Waypoint> wayPoints;
     
+    /**
+     * Color order used when cycling waypoint color
+     */
     public ArrayList<Integer> colorsequence;
 
-    /** Block color array */
+    /**
+     * Block color array - contains 256 (blocks) * 16 (metadata) color slots.
+     * @see getBlockColor
+     * @see blockColorID
+     */
     private final BlockColor[] blockColors = new BlockColor[4096];
     
     private final ZanMinimap minimap;
+
+    /**
+     * @param minimap minimap instance to use
+     */
+    public Config(ZanMinimap minimap) {
+        this.minimap = minimap;
+    }
+
+    /**
+     * turn a block ID and a metadata value into an index in blockColors
+     * @param blockid block ID
+     * @param meta metadata value
+     * @return index in blockColors
+     * @see blockColors
+     * @see getBlockColor
+     */
 
     final int blockColorID(int blockid, int meta)
     {
         return (blockid) | (meta << 8);
     }
+
+    /**
+     * Retrieve the BlockColor object for a block ID and block metadata.
+     * @param blockid block ID
+     * @param meta metadata value
+     * @return BlockColor retrieved
+     */
 
     final BlockColor getBlockColor(int blockid, int meta)
     {
@@ -103,13 +169,10 @@ public class Config {
         System.err.println("Unable to find a block color for blockid: " + blockid + " blockmeta: " + meta);
         return new BlockColor(0xff00ff, 0xff, TintType.NONE);
     }
-    
-    public Config(ZanMinimap minimap) {
 
-        this.minimap = minimap;
-
-        
-    }
+    /**
+     * Initialize everything there is to be initialized in config
+     */
     
     public void initializeEverything() {
         try {
@@ -139,21 +202,27 @@ public class Config {
             e.printStackTrace();
         }
     }
-    
-    
+
+    /**
+     * initialize the waypoint color sequence
+     */
 
     public void initWaypointColors() {
-        int[] colorray = new int[] { 0xfe0000, 0xfe8000, 0xfefe00,
+        int[] colorarrray = new int[] { 0xfe0000, 0xfe8000, 0xfefe00,
                 0x80fe00, 0x00fe00, 0x00fe80, 0x00fefe, 0x0000fe, 0x8000fe,
                 0xfe00fe, 0xfefefe, 0x7f0000, 0x7f4000, 0x7f7f00, 0x407f00,
                 0x007f00, 0x007f40, 0x007f7f, 0x00007f, 0x40007f, 0x7f007f,
                 0x7f7f7f
         };
         colorsequence = new ArrayList<Integer>();
-        for (int color:colorray) {
-            colorsequence.add(color);
+        for (int colorvalue:colorarrray) {
+            colorsequence.add(colorvalue);
         }
     }
+
+    /**
+     * Initialize the default colors in the block color array
+     */
     
     public void initDefaultColors() {
         for (int i = 0; i < blockColors.length; i++)
@@ -282,6 +351,11 @@ public class Config {
         blockColors[blockColorID(91, 0)] = new BlockColor(0xa25b0b, 0xff, TintType.NONE); //jackolantern
     }
 
+    /**
+     * Read block colors from config file (if it exists)
+     * @throws IOException any exceptions thrown by reading utilities
+     */
+
     public void readColors() throws IOException {
         File settingsFile = new File(ObfHub.getAppDir("minecraft"), "minimapcolors_099");
         Pattern colorline = Pattern.compile("^([0-9]*)\\.([0-9]*): color=([0-9a-fA-F]*).alpha=([0-9a-fA-F]*) tint=(.*)$");
@@ -336,6 +410,11 @@ public class Config {
         }
     }
 
+    /**
+     * Write block colors to config file
+     * @throws IOException any exceptions thrown while writing file
+     */
+
     public void writeColors() throws IOException {
         File settingsFile = new File(ObfHub.getAppDir("minecraft"), "minimapcolors_099");
         PrintWriter out = new PrintWriter(new FileWriter(settingsFile));
@@ -358,9 +437,16 @@ public class Config {
         out.close();
     }
 
+
+    /**
+     * Check for the aethermod, and if found, initialize default colors for
+     * aether blocks, read any values from the config, and write out and
+     * reformat the file.
+     * @throws IOException any exceptions thrown while reading or writing
+     */
     public void readAetherColors() throws IOException {
         try {
-            Class aether = Class.forName("mod_Aether");
+            Class<?> aether = Class.forName("mod_Aether");
             HashMap<String,BlockColor> aetherColors = new HashMap<String,BlockColor>();
             for(Field f:aether.getDeclaredFields())
             {
@@ -404,7 +490,6 @@ public class Config {
             
             File settingsFile = new File(ObfHub.getAppDir("minecraft"), "minimapcolors_aether");
             ArrayList<String> commentLines = new ArrayList<String>();
-            //blockColors[blockColorID(0, 0)] = new BlockColor(0xff00ff, 0, TintType.NONE); //air
             Pattern colorline = Pattern.compile("^([^. ]*.[0-9][0-9]?): color=([0-9a-fA-F]*).alpha=([0-9a-fA-F]*) tint=(.*)$");
             if (settingsFile.exists())
             {
@@ -511,14 +596,26 @@ public class Config {
         }
     }
     
+    /**
+     * Utility to convert a collection to a sorted list. Used in readAetherColors().
+     * @param <T> Collection type
+     * @param c Collection to sort
+     * @return sorted collection
+     */
+    
     public static <T extends Comparable<? super T>> List<T> asSortedList(Collection<T> c) {
       List<T> list = new ArrayList<T>(c);
       java.util.Collections.sort(list);
       return list;
     }
 
+    /**
+     * Read configuration.
+     * @throws IOException any exceptions thrown while reading
+     */
+
     public void readConfig() throws IOException {
-        File settingsFile = new File(minimap.obfhub.getAppDir("minecraft"), "zan.settings");
+        File settingsFile = new File(ObfHub.getAppDir("minecraft"), "zan.settings");
         
         if (settingsFile.exists())
         {
@@ -568,6 +665,9 @@ public class Config {
         }
     }
 
+    /**
+     * Save configuration. Any exceptions thrown are caught and printed.
+     */
     void saveConfig()
     {
         try {
@@ -592,15 +692,18 @@ public class Config {
         }
     }
 
+    /**
+     * Save waypoints.
+     */
     void saveWaypoints()
     {
-        File settingsFile = new File(ObfHub.getAppDir("minecraft"), minimap.world + ".points");
+        File settingsFile = new File(ObfHub.getAppDir("minecraft"), minimap.worldname + ".points");
 
         try
         {
             PrintWriter out = new PrintWriter(new FileWriter(settingsFile));
 
-            for (Waypoint pt : wayPts)
+            for (Waypoint pt : wayPoints)
             {
                 if (!pt.name.startsWith("^"))
                     out.println(pt.name + ":" + pt.x + ":" + pt.z + ":" + Boolean.toString(pt.enabled) + ":" + pt.red + ":" + pt.green + ":" + pt.blue);
@@ -615,10 +718,13 @@ public class Config {
         }
     }
 
+    /**
+     * Reset waypoints and load from file
+     */
     void loadWaypoints()
     {
-        wayPts = new ArrayList<Waypoint>();
-        File settingsFile = new File(ObfHub.getAppDir("minecraft"), minimap.world + ".points");
+        wayPoints = new ArrayList<Waypoint>();
+        File settingsFile = new File(ObfHub.getAppDir("minecraft"), minimap.worldname + ".points");
 
         try
         {
@@ -632,13 +738,13 @@ public class Config {
                     String[] curLine = sCurrentLine.split(":");
 
                     if (curLine.length == 4)
-                        wayPts.add(new Waypoint(curLine[0], Integer.parseInt(curLine[1]), Integer.parseInt(curLine[2]), Boolean.parseBoolean(curLine[3])));
+                        wayPoints.add(new Waypoint(curLine[0], Integer.parseInt(curLine[1]), Integer.parseInt(curLine[2]), Boolean.parseBoolean(curLine[3])));
                     else
-                        wayPts.add(new Waypoint(curLine[0], Integer.parseInt(curLine[1]), Integer.parseInt(curLine[2]), Boolean.parseBoolean(curLine[3]), Float.parseFloat(curLine[4]), Float.parseFloat(curLine[5]), Float.parseFloat(curLine[6])));
+                        wayPoints.add(new Waypoint(curLine[0], Integer.parseInt(curLine[1]), Integer.parseInt(curLine[2]), Boolean.parseBoolean(curLine[3]), Float.parseFloat(curLine[4]), Float.parseFloat(curLine[5]), Float.parseFloat(curLine[6])));
                 }
 
                 in.close();
-                minimap.obfhub.chatInfo("§EWaypoints loaded for " + minimap.world);
+                minimap.obfhub.chatInfo("§EWaypoints loaded for " + minimap.worldname);
             }
             else
                 minimap.obfhub.chatInfo("§EError: No waypoints exist for this world/server.");
@@ -649,9 +755,9 @@ public class Config {
         }
     }
     
-    void tick() {
-    }
-    
+    /**
+     * Increment zoom level
+     */
     void nextZoom()
     {
         if (minimap.menu.fudge > 0) return;

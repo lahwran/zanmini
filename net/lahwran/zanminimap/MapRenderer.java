@@ -11,6 +11,10 @@ import org.lwjgl.opengl.GL11;
  */
 public class MapRenderer {
 
+    /**
+     * no idea what this does yet, probably a one-length name because of zan's
+     * old obfuscation, and then his losing the source
+     */
     public int q = 0;
 
     /** Direction you're facing */
@@ -19,25 +23,31 @@ public class MapRenderer {
     /** Last direction you were facing */
     public float oldDir = 0.0f;
 
-    private ZanMinimap minimap;
     private Menu menu;
     private ObfHub obfhub;
     private Config conf;
     private MapCalculator mapcalc;
 
+    /**
+     * @param minimap minimap instance to init with
+     */
     public MapRenderer(ZanMinimap minimap) {
-        this.minimap = minimap;
         menu = minimap.menu;
         obfhub = minimap.obfhub;
         conf = minimap.conf;
         mapcalc = minimap.mapcalc;
     }
 
-    public void tick(int scWidth, int scHeight) {
-        if (this.oldDir != obfhub.radius())
+    /**
+     * Do rendering
+     * @param scWidth screen width
+     * @param scHeight screen height
+     */
+    public void onRenderTick(int scWidth, int scHeight) {
+        if (this.oldDir != obfhub.playerAngle())
         {
-            this.direction += this.oldDir - obfhub.radius();
-            this.oldDir = obfhub.radius();
+            this.direction += this.oldDir - obfhub.playerAngle();
+            this.oldDir = obfhub.playerAngle();
         }
 
         if (this.direction >= 360.0f)
@@ -57,7 +67,7 @@ public class MapRenderer {
         GL11.glEnable(2929);
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 
-        if (conf.coords) showCoords(scWidth, scHeight);
+        if (conf.coords) showCoords(scWidth);
     }
 
     private void renderMap(int scWidth)
@@ -153,7 +163,7 @@ public class MapRenderer {
                 this.drawRound(scWidth);
                 this.drawDirections(scWidth);
 
-                for (Waypoint pt : conf.wayPts)
+                for (Waypoint pt : conf.wayPoints)
                 {
                     if (pt.enabled)
                     {
@@ -189,7 +199,7 @@ public class MapRenderer {
                     }
                 }
 
-                for (Waypoint pt : conf.wayPts)
+                for (Waypoint pt : conf.wayPoints)
                 {
                     if (pt.enabled)
                     {
@@ -265,17 +275,17 @@ public class MapRenderer {
         }
     }
 
-    private void showCoords(int scWidth, int scHeight)
+    private void showCoords(int scWidth)
     {
         if (!conf.hide)
         {
             GL11.glPushMatrix();
             GL11.glScalef(0.5f, 0.5f, 1.0f);
             String xy = obfhub.dCoord(obfhub.playerXCoord()) + ", " + obfhub.dCoord(obfhub.playerZCoord());
-            int m = obfhub.chkLen(xy) / 2;
+            int m = obfhub.calcStringLength(xy) / 2;
             obfhub.write(xy, scWidth * 2 - 32 * 2 - m, 146, 0xffffff);
             xy = Integer.toString(obfhub.playerYCoord());
-            m = obfhub.chkLen(xy) / 2;
+            m = obfhub.calcStringLength(xy) / 2;
             obfhub.write(xy, scWidth * 2 - 32 * 2 - m, 156, 0xffffff);
             GL11.glPopMatrix();
         }

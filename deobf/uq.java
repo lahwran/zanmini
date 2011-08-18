@@ -170,7 +170,7 @@ public class uq extends ub {
             GL11.glEnable(3008);
             GL11.glEnable(2929);
         }
-        minimap.OnTickInGame(g); //TODO: update
+        minimap.onRenderTick(g); //TODO: update
 
         if(g.z.B) {
             GL11.glPushMatrix();

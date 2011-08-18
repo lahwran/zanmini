@@ -7,9 +7,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.lang.reflect.Field;
 
-import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.GL11;
 
 import deobf.ch;
 import deobf.da;
@@ -30,36 +28,58 @@ import net.minecraft.client.Minecraft;
  */
 public class ObfHub {
 
-    
-    /** last dimension we rendered the map in */
+    /**
+     * last dimension we rendered the map in
+     */
     public int lastdim = 0;
+
+    /**
+     * Minecraft instance
+     */
     public Minecraft game;
 
-    /** Polygon creation class */
+    /**
+     * Tesselator
+     */
     public nw lDraw = nw.a;
 
-    /** Font rendering class */
+    /**
+     * Font renderer
+     */
     public sj lang;
 
-    /** Render texture */
+    /**
+     * Render texture
+     */
     public ji renderEngine;
 
     private ZanMinimap minimap;
 
-    ObfHub(ZanMinimap minimap) {
+    /**
+     * @param minimap minimap instance to initialize with
+     */
+    public ObfHub(ZanMinimap minimap) {
         this.minimap = minimap;
     }
 
+    /**
+     * Add a string to the chat buffer
+     * @param s String to add
+     */
     void chatInfo(String s)
     {
         game.v.a(s);
     }
 
+    /**
+     * Get a world name. Returns MpServer or something for multiplayer servers
+     * @return world name
+     */
     String getMapName()
     {
         try {
             fd world = getWorld();
-            Class worldclass = world.getClass();
+            Class<?> worldclass = world.getClass();
             Field worlddatafield = null;
             while (true) { //
                 
@@ -71,6 +91,8 @@ public class ObfHub {
                     continue;
                 }
             }
+            if (worlddatafield == null)
+                return null;
             worlddatafield.setAccessible(true);
             
             ei worldata;
@@ -82,112 +104,208 @@ public class ObfHub {
         }
     }
 
+    /**
+     * Get the server's address
+     * @return server address
+     */
     String getServerName()
     {
         return game.z.C;
     }
 
+    /**
+     * Start drawing quads
+     */
     void draw_startQuads()
     {
         lDraw.b();
     }
 
+    /**
+     * finish drawing
+     */
     void draw_finish()
     {
         lDraw.a();
     }
 
+    /**
+     * this needs to be looked up
+     * @param g unknown
+     */
     void glah(int g)
     {
         renderEngine.a(g);
     }
 
+    /**
+     * Add a vertex and a corrosponding UV (int x/y version)
+     * @param x vertex X coord
+     * @param y vertex Y coord
+     * @param z vertex Z coord
+     * @param u texture U coord
+     * @param v texture V coord
+     */
     void ldraw_addVertexWithUV(int x, int y, double z, double u, double v)
     {
         ldraw_addVertexWithUV((double) x, (double) y, z, u, v);
     }
 
-    void ldraw_setColor(double a, double b, double c)
+    /**
+     * Add a vertex
+     * @param x vertex X coord
+     * @param y vertex Y coord
+     * @param z vertex Z coord
+     */
+    void ldraw_addVertex(double x, double y, double z)
     {
-        lDraw.a(a, b, c);
+        lDraw.a(x, y, z);
     }
 
+    /**
+     * Add a vertex and a corrosponding UV
+     * @param x vertex X coord
+     * @param y vertex Y coord
+     * @param z vertex Z coord
+     * @param u texture U coord
+     * @param v texture V coord
+     */
     void ldraw_addVertexWithUV(double x, double y, double z, double u, double v)
     {
         lDraw.a(x, y, z, u, v);
     }
 
+    /**
+     * Get mouse X scaled to screen width and screen scale
+     * @param scWidth screen width
+     * @return mouse X
+     */
     int getMouseX(int scWidth)
     {
         return Mouse.getX() * (scWidth + 5) / game.d;
     }
 
+    /**
+     * Get mouse Y scaled to screen height and screen scale
+     * @param scHeight screen height
+     * @return mouse Y
+     */
     int getMouseY(int scHeight)
     {
         return (scHeight + 5) - Mouse.getY() * (scHeight + 5) / this.game.e - 1;
     }
 
+    /**
+     * Set the minecraft menu display to null (thereby hiding any shown menu)
+     */
     void setMenuNull()
     {
         game.r = null;
     }
 
+    /**
+     * Get minecraft menu as an object (for testing null and such)
+     * @return menu object
+     */
     Object getMenu()
     {
         return game.r;
     }
-    
+
+    /**
+     * Check if the menu is showing GuiGameOver
+     * @return true if showing GuiGameOver
+     */
     boolean isGameOver()
     {
         return getMenu() instanceof ch;
     }
 
+    /**
+     * Check if the menu is showing GuiConflictWarning or such
+     * @return true if showing GuiConflictWarning
+     */
     boolean isConflictWarning()
     {
         return getMenu() instanceof qh;
     }
 
+    /**
+     * Check if any minecraft menus are showing
+     * @return true if menu object is not null
+     */
     boolean isMenuShowing()
     {
-        return this.game.r != null;
+        return game.r != null;
     }
 
+    /**
+     * Ensure we have a copy of the lang object in Minecraft
+     */
     void updateLang()
     {
-        if (lang == null) lang = this.game.q;
+        if (lang == null) lang = game.q;
     }
 
+    /**
+     * Ensure we have a copy of the RenderENgine object in Minecraft
+     */
     void updateRenderEngine()
     {
         if (renderEngine == null) renderEngine = this.game.p;
     }
 
+    /**
+     * Get the scaled screen size
+     * @return scaled screen size
+     */
     int[] getScreenSize()
     {
         qq scSize = new qq(game.z, game.d, game.e);
         return new int[] {scSize.a(), scSize.b()};
     }
 
+    /**
+     * Set the minecraft gui to an instance of GuiScreen, so that while we're
+     * drawing our menu, minecraft doesn't try to do menu-related stuff
+     */
     void showPlaceholderGui()
     {
         this.game.a(new da());
     }
-    
+
+    /**
+     * Check if showing the ingame menu (esc menu)
+     * @return true if showing the ingame menu
+     */
     boolean isIngameMenuUp()
     {
         return this.game.r instanceof oz;
     }
-    
+
+    /**
+     * Check if a player currently exists
+     * @return true if a player existss
+     */
     boolean playerExists()
     {
         return this.game.h != null;
     }
-    
+
+    /**
+     * Check if it's currently safe to run (to prevent crashes when attempting
+     * to calculate the map when no world exists)
+     * @return true if safe to run
+     */
     boolean safeToRun()
     {
         return game.i != null;
     }
-    
+
+    /**
+     * Get the current dimension int
+     * @return current dimension value
+     */
     int getCurrentDimension()
     {
         if (!playerExists())
@@ -195,76 +313,138 @@ public class ObfHub {
         return game.h.m;
     }
 
-    int chkLen(String paramStr)
+    /**
+     * Calculate the render pixel length of a string
+     * @param str string to calculate
+     * @return pixel width of string
+     */
+    int calcStringLength(String str)
     {
-        return this.lang.a(paramStr);
+        return this.lang.a(str);
     }
 
-    void write(String paramStr, int paramInt1, int paramInt2, int paramInt3)
+    /**
+     * draw a string on the screen
+     * @param str string to render
+     * @param x X position to render at
+     * @param y Y position to render at
+     * @param color color to render the string as
+     */
+    void write(String str, int x, int y, int color)
     {
-        this.lang.a(paramStr, paramInt1, paramInt2, paramInt3);
+        this.lang.a(str, x, y, color);
     }
 
+    /**
+     * @return player current X coord
+     */
     int playerXCoord()
     {
         double posX = this.game.h.aM;
         return (int)(posX < 0.0D ? posX - 1 : posX);
     }
 
+    /**
+     * @return player current Z coord
+     */
     int playerZCoord()
     {
         double posZ = this.game.h.aO;
         return (int)(posZ < 0.0D ? posZ - 1 : posZ);
     }
 
+    /**
+     * @return player current Y coord
+     */
     int playerYCoord()
     {
         double posY = this.game.h.aN;
         return (int)posY;
     }
 
-    float radius()
+    /**
+     * @return player angle
+     */
+    float playerAngle()
     {
         float rotationYaw = this.game.h.aS;
         return rotationYaw;
     }
 
-    String dCoord(int paramInt1)
+    /**
+     * Format a coord for display
+     * @param coord integer to format
+     * @return formatted string
+     */
+    String dCoord(int coord)
     {
-        if (paramInt1 < 0)
-            return (minimap.conf.netherpoints ? "n" : "") + "-" + Math.abs(paramInt1 + 1);
+        if (coord < 0)
+            return (minimap.conf.netherpoints ? "n" : "") + "-" + Math.abs(coord + 1);
         else
-            return (minimap.conf.netherpoints ? "n" : "") + "+" + paramInt1;
+            return (minimap.conf.netherpoints ? "n" : "") + "+" + coord;
     }
 
-    int tex(BufferedImage paramImg)
+    /**
+     * Not entirely sure what this does, but I think it sets a bufferedimage
+     * as a GL texture
+     * @param image image to do stuff with
+     * @return gl texture index?
+     */
+    int tex(BufferedImage image)
     {
-        if (paramImg == null) throw new NullPointerException();
-        if (renderEngine == null) throw new NullPointerException();
-        return this.renderEngine.a(paramImg);
+        return this.renderEngine.a(image);
     }
 
-    int img(String paramStr)
+    /**
+     * Set a path in the jar as a gl texture
+     * @param path path to image in the jar
+     * @return gl texture index?
+     */
+    int img(String path)
     {
         //TODO: is this correct?
-        return this.renderEngine.b(paramStr);
+        return this.renderEngine.b(path);
     }
 
-    void disp(int paramInt)
+    /**
+     * Loads a gl texture index as the texture to render
+     * @param index gl texture index
+     */
+    void disp(int index)
     {
-        this.renderEngine.b(paramInt);
+        this.renderEngine.b(index);
     }
 
+    /**
+     * Get current world
+     * @return world instance
+     */
     fd getWorld()
     {
         return game.f;
     }
-    
+
+    /**
+     * Get app dir - finds the dir for .someapp if you call it with someapp
+     * generally call it with "minecraft"
+     * @param app app to get
+     * @return File of app dir
+     */
     static File getAppDir(String app)
     {
         return Minecraft.a(app);
     }
-    
+
+    /**
+     * Tint a color with a tint type. Doesn't currently work.
+     * @param world unused
+     * @param original returned as-is
+     * @param x unused
+     * @param y unused
+     * @param z unused
+     * @param ttype unused
+     * @return original color
+     */
     int getBlockTint(fd world, int original, int x, int y, int z, TintType ttype)
     {
         /*if (true)*/ return original; //blarg :<
@@ -343,10 +523,17 @@ public class ObfHub {
                 return original;
         }*/
     }
+    /**
+     * @return true if world is null
+     */
     public boolean worldIsNull() {
         return game.r == null;
     }
-    
+
+    /**
+     * Get world name. checks both MapName and ServerName.
+     * @return worldname
+     */
     public String getWorldName() {
         String worldname = getMapName();
         if (worldname.equals("MpServer"))
@@ -357,8 +544,13 @@ public class ObfHub {
         }
         return worldname;
     }
-    
-    public void tick() {
+
+    /**
+     * called on render ticks - calls updateLang and updateRenderEngine
+     * @see updateLang
+     * @see updateRenderEngine
+     */
+    public void onRenderTick() {
         updateLang();
         updateRenderEngine();
     }

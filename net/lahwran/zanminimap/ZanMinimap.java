@@ -1,27 +1,8 @@
 package net.lahwran.zanminimap;
-import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Random;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import net.minecraft.client.Minecraft;
 
 import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.GL11;
-
-import deobf.*;
 
 /**
  * Main Zanminimap class where everything happens
@@ -33,22 +14,43 @@ public class ZanMinimap {
     /** Current build version */
     public static final String zmodver = "v0.10.5";
 
-    /** Minecraft version that we'll work with */
+    /** Minecraft version */
     public static final String mcvers = "1.7.3";
 
-    /** World currently loaded */
-    public String world = "";
+    /** World loaded, so we can detect when the world changes */
+    public String worldname = "";
 
-    public boolean haveLoadedBefore;
-    
-    ObfHub obfhub;
-    Config conf;
-    MapCalculator mapcalc;
-    MapRenderer renderer;
-    Menu menu;
+    /** ObfHub instance, public for things that want to plug into the minimap */
+    public ObfHub obfhub;
 
+    /**
+     * Config instance, public for things that want to plug into the minimap
+     */
+    public Config conf;
+
+    /**
+     * MapCalculator instance, public for things that want to plug into the minimap
+     */
+    public MapCalculator mapcalc;
+
+    /**
+     * MapRenderer instance, public for things that want to plug into the minimap
+     */
+    public MapRenderer renderer;
+
+    /**
+     * Menu instance, public for things that want to plug into the minimap
+     */
+    public Menu menu;
+
+    /**
+     * Instance, mainly for things that want to plug into the minimap
+     */
     public static ZanMinimap instance;
 
+    /**
+     * 
+     */
     public ZanMinimap()
     {
 
@@ -64,7 +66,11 @@ public class ZanMinimap {
         instance = this;
     }
 
-    public void OnTickInGame(Minecraft mc)
+    /**
+     * Heartbeat function called each render by whatever is managing the minimap.
+     * @param mc Minecraft instance to initialize obfhub.game with
+     */
+    public void onRenderTick(Minecraft mc)
     {
         if (obfhub.game == null) obfhub.game = mc;
 
@@ -86,13 +92,11 @@ public class ZanMinimap {
                 menu.error = "Cavemap zoom (2.0x)";
             }
         }
-        obfhub.tick();
-        mapcalc.tick();
         String worldName = obfhub.getWorldName();
 
-        if (!world.equals(worldName))
+        if (!worldname.equals(worldName))
         {
-            world = worldName;
+            worldname = worldName;
             menu.iMenu = 1;
             conf.loadWaypoints();
         }
@@ -119,7 +123,10 @@ public class ZanMinimap {
         scWidth -= 5;
         scHeight -= 5;
 
-        menu.tick(scWidth, scHeight);
-        renderer.tick(scWidth, scHeight);
+        obfhub.onRenderTick();
+        mapcalc.onRenderTick();
+        menu.onRenderTick(scWidth, scHeight);
+        renderer.onRenderTick(scWidth, scHeight);
     }
+
 }

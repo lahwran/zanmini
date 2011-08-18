@@ -16,7 +16,14 @@ import deobf.ln;
  */
 public class MapCalculator implements Runnable {
 
-    // Yourself came up with this, I'm sure it makes sense to someone
+    /**
+     * Multiply two colors by each other. Treats 0xff as 1.0.
+     * 
+     * Yourself came up with the algorithm, I'm sure it makes sense to someone
+     * @param x Color to multiply
+     * @param y Other color to multiply
+     * @return multiplied color
+     */
     public int colorMult(int x, int y)
     {
         int res = 0;
@@ -37,13 +44,13 @@ public class MapCalculator implements Runnable {
         int meta = chunk.b(x, y, z);
         return conf.getBlockColor(id, meta).alpha > 0;
     }
-    
+
     private final float distance(int x1, int y1, int x2, int y2)
     {
         return (float)Math.sqrt(Math.pow(x2-x1, 2)+Math.pow(y2-y1,2));
     }
 
-    private final int getBlockHeight(fd world, int x, int z, int starty)
+    private final int getBlockHeight(fd world, int x, int z)
     {
         if (conf.cavemap)
         {
@@ -76,7 +83,6 @@ public class MapCalculator implements Runnable {
                     }
                 }
             }
-            int origy = y;
             while(y > -1)
             {
                 y--;
@@ -87,10 +93,9 @@ public class MapCalculator implements Runnable {
             }
             return -1;
         }
-        else
-        {
-            return world.d(x, z)-1;
-        }
+
+        return world.d(x, z)-1;
+
         // return world.b(x, z).b(x & 0xf, z & 0xf);
         /*
         li chunk = world.b(x, z);
@@ -109,11 +114,6 @@ public class MapCalculator implements Runnable {
        //}
 */
         //return -1;
-    }
-
-    private final int getBlockHeight(fd world, int x, int z)
-    {
-        return getBlockHeight(world, x, z, 127);
     }
 
 
@@ -235,113 +235,124 @@ public class MapCalculator implements Runnable {
         }
     }
 
-    public void run()
-    {
-        if (obfhub.game == null) return;
-        while (true)
-        {
-            if (conf.threading)
-            {
-                this.active = true;
-                while (obfhub.playerExists() && active)
-                {
-                    if (conf.enabled && !conf.hide)
-                        if (((this.lastX != obfhub.playerXCoord()) || (this.lastZ != obfhub.playerZCoord()) || (this.timer > 300)) && obfhub.safeToRun())
-                            try
-                            {
-                                this.mapCalc();
-                                this.timer = 1;
-                            }
-                            catch (Exception local)
-                            {}
-                    this.timer++;
-                    this.active = false;
+    /**
+     * the run() to implement runnable - the main function of the other thread.
+     * when threading is disabled, this simply idles and the actual work is
+     * done in onRenderTick().
+     */
+    public void run() {
+        if (obfhub.game == null)
+            return;
+        while (true) {
+            if (conf.threading && obfhub.playerExists()) {
+                if (conf.enabled && !conf.hide && (this.lastX != obfhub.playerXCoord() || this.lastZ != obfhub.playerZCoord() || this.timer > 300) && obfhub.safeToRun()) {
+                        try
+                        {
+                            this.mapCalc();
+                            this.timer = 1;
+                        }
+                        catch (Exception e)
+                        {
+                            e.printStackTrace();
+                        }
                 }
-                active = false;
-                try
-                {
+                this.timer++;
+                try {
                     Thread.sleep(10);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-                catch (Exception exc)
-                {}
                 try
                 {
-                    this.zCalc.wait(0);
+                    this.zCalc.wait();
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-                catch (Exception exc)
-                {}
-            }
-            else
-            {
-                try
-                {
-                    Thread.sleep(1000);
+            } else {
+                while (!conf.threading) {
+                    try {
+                        this.zCalc.wait();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
-                catch (Exception exc)
-                {}
-                try
-                {
-                    this.zCalc.wait(0);
-                }
-                catch (Exception exc)
-                {}
             }
         }
     }
 
-    void tick() {
-        if (conf.threading)
-        {
-
-            if (zCalc == null || !zCalc.isAlive() && conf.threading)
+    /**
+     * Called each tick of the render.
+     */
+    void onRenderTick() {
+        if (conf.threading) {
+            if (zCalc == null || !zCalc.isAlive())
             {
                 zCalc = new Thread(this);
                 zCalc.start();
             }
-            if (obfhub.isMenuShowing() && !obfhub.isGameOver() && !obfhub.isConflictWarning())
+            if (!obfhub.isGameOver() && !obfhub.isConflictWarning())
+            {
                 try
                 {
-                    this.zCalc.notify();
+                    zCalc.notify();
                 }
-                catch (Exception local)
-                {}
-        }
-        else if (!conf.threading)
-        {
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
+            }
+        } else if (!conf.threading) {
             if (conf.enabled && !conf.hide )
-                if (((this.lastX != obfhub.playerXCoord()) || (this.lastZ != obfhub.playerZCoord()) || (this.timer > 300)))
+                if (this.lastX != obfhub.playerXCoord() || this.lastZ != obfhub.playerZCoord() || this.timer > 300)
                     mapCalc();
         }
     }
 
-    /** Is map calc thread still executing? */
-    public boolean active = false;
-
-    /** Map calculation thread */
+    /**
+     * Map calculation thread
+     */
     public Thread zCalc = new Thread(this);
 
-    /** Minimap update interval */
+    /**
+     * Timer used to force a map update occasionally. counts down each tick,
+     * when the timer changes to 0 a map update is forced.
+     */
     public int timer = 0;
 
-    /** Last X coordinate rendered */
+    /**
+     * X coordinate of the player on last render
+     */
     public int lastX = 0;
 
-    /** Last Z coordinate rendered */
+    /**
+     * Z coordinate of the player on last render
+     */
     public int lastZ = 0;
 
-    /** Last zoom level rendered at */
+    /** 
+     * Last zoom level rendered at - used in case zoom changes in the middle
+     * of rendering a map frame
+     */
     public int lZoom = 0;
-    
+
+    /**
+     * Random used to distort cave map
+     */
     public Random cmdist = new Random();
-    /** Textures for each zoom level */
+
+    /**
+     * Textures for each zoom level
+     */
     public BufferedImage[] map = new BufferedImage[4];
 
-    private ZanMinimap minimap;
     private Config conf;
     private ObfHub obfhub;
 
+    /**
+     * This constructor inits state, but does not start the thread.
+     * @param minimap Minimap instance to initialize off
+     */
     public MapCalculator(ZanMinimap minimap) {
-        this.minimap = minimap;
         conf = minimap.conf;
         obfhub = minimap.obfhub;
         this.map[0] = new BufferedImage(32, 32, 2);
@@ -350,6 +361,11 @@ public class MapCalculator implements Runnable {
         this.map[3] = new BufferedImage(256, 256, 2);
     }
 
+    /**
+     * Start up the other thread. The thread may return early at this point,
+     * as there might not be a Minecraft instance available yet. if that occurs,
+     * the thread will be restarted by the keep-alive in onRenderTick().
+     */
     public void start() {
         zCalc.start();
     }
