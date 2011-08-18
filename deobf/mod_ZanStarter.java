@@ -1,5 +1,4 @@
 package deobf;
-import deobf.*;
 import net.lahwran.zanminimap.ZanMinimap;
 import net.minecraft.client.Minecraft;
 
@@ -10,8 +9,14 @@ import net.minecraft.client.Minecraft;
  */
 public class mod_ZanStarter extends BaseMod {
 
+    /**
+     * our minimap instance.
+     */
     public ZanMinimap minimap;
 
+    /**
+     * Check if the other hook exists. if not, fire up.
+     */
     public mod_ZanStarter() {
         boolean needmodloader = true;
         try {
