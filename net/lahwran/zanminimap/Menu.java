@@ -255,8 +255,8 @@ public class Menu {
         }
 
         int title = obfhub.calcStringLength(head);
-        int centerX = (int) ((scWidth + 5) / 2.0D);
-        int centerY = (int) ((scHeight + 5) / 2.0D);
+        int centerX = (int) ((scWidth + ZanMinimap.mysteriousFive) / 2.0D);
+        int centerY = (int) ((scHeight + ZanMinimap.mysteriousFive) / 2.0D);
         String hide = "§7Press §F" + Keyboard.getKeyName(conf.zoomKey) + "§7 to hide.";
         int footer = obfhub.calcStringLength(hide);
         GL11.glDisable(3553);
@@ -315,7 +315,7 @@ public class Menu {
 
             obfhub.write(hide,
                     centerX - footer / 2,
-                    ((scHeight + 5) / 2 + (height - 1) * 10 / 2 + 11),
+                    ((scHeight + ZanMinimap.mysteriousFive) / 2 + (height - 1) * 10 / 2 + 11),
                     0xffffff);
         } else {
             if (this.iMenu == 2) {

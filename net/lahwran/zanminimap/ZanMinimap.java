@@ -49,6 +49,17 @@ public class ZanMinimap {
     public static ZanMinimap instance;
 
     /**
+     * Some things dealing with screen size seem to mysteriously shift by
+     * five for no apparent reason. this was a test to see what changing it did.
+     * it screwed up rendering pretty bad to change it.
+     */
+    public static final double mysteriousFivePointO = 5.0d;
+    /**
+     * @see mysteriousFivePointO
+     */
+    public static final int mysteriousFive = (int)mysteriousFivePointO;
+
+    /**
      * 
      */
     public ZanMinimap() {
@@ -114,13 +125,13 @@ public class ZanMinimap {
             }
         }
 
-        if ((obfhub.isIngameMenuUp()) ^ (Keyboard.isKeyDown(Keyboard.KEY_F6)))
+        if (obfhub.isIngameMenuUp() ^ Keyboard.isKeyDown(Keyboard.KEY_F6))
             conf.enabled = false;
         else
             conf.enabled = true;
 
-        scWidth -= 5;
-        scHeight -= 5;
+        scWidth -= ZanMinimap.mysteriousFive;
+        scHeight -= ZanMinimap.mysteriousFive;
 
         obfhub.onRenderTick();
         mapcalc.onRenderTick();

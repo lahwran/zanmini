@@ -180,7 +180,7 @@ public class ObfHub {
      * @return mouse X
      */
     int getMouseX(int scWidth) {
-        return Mouse.getX() * (scWidth + 5) / game.d;
+        return Mouse.getX() * (scWidth + ZanMinimap.mysteriousFive) / game.d;
     }
 
     /**
@@ -190,7 +190,7 @@ public class ObfHub {
      * @return mouse Y
      */
     int getMouseY(int scHeight) {
-        return (scHeight + 5) - Mouse.getY() * (scHeight + 5) / this.game.e - 1;
+        return (scHeight + ZanMinimap.mysteriousFive) - Mouse.getY() * (scHeight + ZanMinimap.mysteriousFive) / this.game.e - 1;
     }
 
     /**

@@ -218,23 +218,23 @@ public class MapRenderer {
     private void renderMapFull(int scWidth, int scHeight) {
         this.q = obfhub.tex(mapcalc.map[conf.zoom]);
         obfhub.draw_startQuads();
-        obfhub.ldraw_addVertexWithUV((scWidth + 5) / 2 - 128,
-                (scHeight + 5) / 2 + 128,
+        obfhub.ldraw_addVertexWithUV((scWidth + ZanMinimap.mysteriousFive) / 2 - 128,
+                (scHeight + ZanMinimap.mysteriousFive) / 2 + 128,
                 1.0D,
                 0.0D,
                 1.0D);
-        obfhub.ldraw_addVertexWithUV((scWidth + 5) / 2 + 128,
-                (scHeight + 5) / 2 + 128,
+        obfhub.ldraw_addVertexWithUV((scWidth + ZanMinimap.mysteriousFive) / 2 + 128,
+                (scHeight + ZanMinimap.mysteriousFive) / 2 + 128,
                 1.0D,
                 1.0D,
                 1.0D);
-        obfhub.ldraw_addVertexWithUV((scWidth + 5) / 2 + 128,
-                (scHeight + 5) / 2 - 128,
+        obfhub.ldraw_addVertexWithUV((scWidth + ZanMinimap.mysteriousFive) / 2 + 128,
+                (scHeight + ZanMinimap.mysteriousFive) / 2 - 128,
                 1.0D,
                 1.0D,
                 0.0D);
-        obfhub.ldraw_addVertexWithUV((scWidth + 5) / 2 - 128,
-                (scHeight + 5) / 2 - 128,
+        obfhub.ldraw_addVertexWithUV((scWidth + ZanMinimap.mysteriousFive) / 2 - 128,
+                (scHeight + ZanMinimap.mysteriousFive) / 2 - 128,
                 1.0D,
                 0.0D,
                 0.0D);
@@ -243,27 +243,27 @@ public class MapRenderer {
         try {
             GL11.glPushMatrix();
             obfhub.disp(obfhub.img("/mmarrow.png"));
-            GL11.glTranslatef((scWidth + 5) / 2, (scHeight + 5) / 2, 0.0F);
+            GL11.glTranslatef((scWidth + ZanMinimap.mysteriousFive) / 2, (scHeight + ZanMinimap.mysteriousFive) / 2, 0.0F);
             GL11.glRotatef(-this.direction - 90.0F, 0.0F, 0.0F, 1.0F);
-            GL11.glTranslatef(-((scWidth + 5) / 2), -((scHeight + 5) / 2), 0.0F);
+            GL11.glTranslatef(-((scWidth + ZanMinimap.mysteriousFive) / 2), -((scHeight + ZanMinimap.mysteriousFive) / 2), 0.0F);
             obfhub.draw_startQuads();
-            obfhub.ldraw_addVertexWithUV((scWidth + 5) / 2 - 32,
-                    (scHeight + 5) / 2 + 32,
+            obfhub.ldraw_addVertexWithUV((scWidth + ZanMinimap.mysteriousFive) / 2 - 32,
+                    (scHeight + ZanMinimap.mysteriousFive) / 2 + 32,
                     1.0D,
                     0.0D,
                     1.0D);
-            obfhub.ldraw_addVertexWithUV((scWidth + 5) / 2 + 32,
-                    (scHeight + 5) / 2 + 32,
+            obfhub.ldraw_addVertexWithUV((scWidth + ZanMinimap.mysteriousFive) / 2 + 32,
+                    (scHeight + ZanMinimap.mysteriousFive) / 2 + 32,
                     1.0D,
                     1.0D,
                     1.0D);
-            obfhub.ldraw_addVertexWithUV((scWidth + 5) / 2 + 32,
-                    (scHeight + 5) / 2 - 32,
+            obfhub.ldraw_addVertexWithUV((scWidth + ZanMinimap.mysteriousFive) / 2 + 32,
+                    (scHeight + ZanMinimap.mysteriousFive) / 2 - 32,
                     1.0D,
                     1.0D,
                     0.0D);
-            obfhub.ldraw_addVertexWithUV((scWidth + 5) / 2 - 32,
-                    (scHeight + 5) / 2 - 32,
+            obfhub.ldraw_addVertexWithUV((scWidth + ZanMinimap.mysteriousFive) / 2 - 32,
+                    (scHeight + ZanMinimap.mysteriousFive) / 2 - 32,
                     1.0D,
                     0.0D,
                     0.0D);
@@ -305,10 +305,10 @@ public class MapRenderer {
     }
 
     private void drawOnMap(int paramInt1) {
-        obfhub.ldraw_addVertexWithUV(paramInt1 - 64.0D, 64.0D + 5.0D, 1.0D, 0.0D, 1.0D);
-        obfhub.ldraw_addVertexWithUV(paramInt1, 64.0D + 5.0D, 1.0D, 1.0D, 1.0D);
-        obfhub.ldraw_addVertexWithUV(paramInt1, 5.0D, 1.0D, 1.0D, 0.0D);
-        obfhub.ldraw_addVertexWithUV(paramInt1 - 64.0D, 5.0D, 1.0D, 0.0D, 0.0D);
+        obfhub.ldraw_addVertexWithUV(paramInt1 - 64.0D, 64.0D + ZanMinimap.mysteriousFivePointO, 1.0D, 0.0D, 1.0D);
+        obfhub.ldraw_addVertexWithUV(paramInt1, 64.0D + ZanMinimap.mysteriousFivePointO, 1.0D, 1.0D, 1.0D);
+        obfhub.ldraw_addVertexWithUV(paramInt1, ZanMinimap.mysteriousFivePointO, 1.0D, 1.0D, 0.0D);
+        obfhub.ldraw_addVertexWithUV(paramInt1 - 64.0D, ZanMinimap.mysteriousFivePointO, 1.0D, 0.0D, 0.0D);
     }
 
     private void drawDirections(int scWidth) {
