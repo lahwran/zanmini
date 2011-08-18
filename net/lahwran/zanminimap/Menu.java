@@ -686,9 +686,7 @@ public class Menu {
                         && this.iMenu == 3)
                     if (leftclick || rightclick) {
                         Waypoint waypoint = conf.wayPoints.get(i);
-                        int color24 = ((int) (waypoint.red * 0xff) << 16)
-                                + ((int) (waypoint.green * 0xff) << 8)
-                                + ((int) (waypoint.blue * 0xff));
+                        int color24 = waypoint.getColor24();
                         int index = conf.colorsequence.indexOf(color24);
                         int direction = 0;
                         if (leftclick)
