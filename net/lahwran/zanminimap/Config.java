@@ -389,12 +389,7 @@ public class Config {
                         {
                             int newcol = Integer.parseInt(curLine[2], 16);
                             int id = Integer.parseInt(curLine[1]);
-                            if (getBlockColor(id, 0).color != newcol) // only
-                                                                      // act
-                                                                      // if
-                                                                      // it's
-                                                                      // not
-                                                                      // default
+                            if (getBlockColor(id, 0).color != newcol) // only act if it's not default
                                 blockColors[blockColorID(id, 0)] = new BlockColor(newcol, 0xff, TintType.NONE);
                         }
                     }
@@ -816,9 +811,6 @@ public class Config {
             }
             minimap.mapcalc.timer = 500;
         }
-
-        
-        
         minimap.menu.fudge = 20;
     }
 }

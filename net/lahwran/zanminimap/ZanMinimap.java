@@ -51,15 +51,14 @@ public class ZanMinimap {
     /**
      * 
      */
-    public ZanMinimap()
-    {
+    public ZanMinimap() {
 
         this.obfhub = new ObfHub(this);
         this.conf = new Config(this);
         this.mapcalc = new MapCalculator(this);
         this.menu = new Menu(this);
         this.renderer = new MapRenderer(this);
-        
+
         conf.initializeEverything();
         mapcalc.start();
 
@@ -68,39 +67,38 @@ public class ZanMinimap {
 
     /**
      * Heartbeat function called each render by whatever is managing the minimap.
+     * 
      * @param mc Minecraft instance to initialize obfhub.game with
      */
-    public void onRenderTick(Minecraft mc)
-    {
-        if (obfhub.game == null) obfhub.game = mc;
+    public void onRenderTick(Minecraft mc) {
+        if (obfhub.game == null)
+            obfhub.game = mc;
 
-        if (!obfhub.safeToRun()) return;
-        
+        if (!obfhub.safeToRun())
+            return;
+
         int dim = obfhub.getCurrentDimension();
-        if(dim != obfhub.lastdim)
-        {
+        if (dim != obfhub.lastdim) {
             conf.cavemap = dim < 0;
             conf.lightmap = true;
             conf.heightmap = !conf.cavemap;
             conf.netherpoints = conf.cavemap;
             obfhub.lastdim = dim;
             conf.saveConfig();
-            if(conf.cavemap)
-            {
+            if (conf.cavemap) {
                 conf.full = false;
-                conf.zoom=1;
+                conf.zoom = 1;
                 menu.error = "Cavemap zoom (2.0x)";
             }
         }
         String worldName = obfhub.getWorldName();
 
-        if (!worldname.equals(worldName))
-        {
+        if (!worldname.equals(worldName)) {
             worldname = worldName;
             menu.iMenu = 1;
             conf.loadWaypoints();
         }
-        
+
         int[] scSize = obfhub.getScreenSize();
         int scWidth = scSize[0];
         int scHeight = scSize[1];
