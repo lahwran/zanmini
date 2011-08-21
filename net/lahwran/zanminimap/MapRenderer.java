@@ -26,7 +26,7 @@ public class MapRenderer {
     private Menu menu;
     private ObfHub obfhub;
     private Config conf;
-    private MapCalculator mapcalc;
+    private Map map;
 
     /**
      * @param minimap minimap instance to init with
@@ -35,7 +35,7 @@ public class MapRenderer {
         menu = minimap.menu;
         obfhub = minimap.obfhub;
         conf = minimap.conf;
-        mapcalc = minimap.mapcalc;
+        map = minimap.map;
     }
 
     /**
@@ -80,16 +80,16 @@ public class MapRenderer {
 
         if (!conf.hide && !conf.full) {
             if (this.q != 0)
-                obfhub.glah(this.q);
+                obfhub.deleteTexture(this.q);
 
             if (conf.squaremap) {
                 if (conf.zoom == 3) {
                     GL11.glPushMatrix();
                     GL11.glScalef(0.5f, 0.5f, 1.0f);
-                    this.q = obfhub.tex(mapcalc.map[conf.zoom]);
+                    this.q = obfhub.tex(map.mapimage);
                     GL11.glPopMatrix();
                 } else
-                    this.q = obfhub.tex(mapcalc.map[conf.zoom]);
+                    this.q = obfhub.tex(map.mapimage);
 
                 obfhub.draw_startQuads();
                 this.drawOnMap(scWidth);
@@ -125,10 +125,10 @@ public class MapRenderer {
                 if (conf.zoom == 3) {
                     GL11.glPushMatrix();
                     GL11.glScalef(0.5f, 0.5f, 1.0f);
-                    this.q = obfhub.tex(mapcalc.map[conf.zoom]);
+                    this.q = obfhub.tex(map.mapimage);
                     GL11.glPopMatrix();
                 } else
-                    this.q = obfhub.tex(mapcalc.map[conf.zoom]);
+                    this.q = obfhub.tex(map.mapimage);
 
                 GL11.glTranslatef(scWidth - 32.0F, 37.0F, 0.0F);
                 GL11.glRotatef(this.direction + 90.0F, 0.0F, 0.0F, 1.0F);
@@ -150,8 +150,8 @@ public class MapRenderer {
 
                 for (Waypoint pt : conf.wayPoints) {
                     if (pt.enabled) {
-                        int wayX = obfhub.playerXCoord() - (pt.x / (conf.netherpoints ? 8 : 1));
-                        int wayY = obfhub.playerZCoord() - (pt.z / (conf.netherpoints ? 8 : 1));
+                        double wayX = map.getPlayerX() - (pt.x / (conf.netherpoints ? 8 : 1));
+                        double wayY = map.getPlayerZ() - (pt.z / (conf.netherpoints ? 8 : 1));
                         float locate = (float) Math.toDegrees(Math.atan2(wayX, wayY));
                         double hypot = Math.sqrt((wayX * wayX) + (wayY * wayY))
                                 / (Math.pow(2, conf.zoom) / 2);
@@ -179,8 +179,8 @@ public class MapRenderer {
 
                 for (Waypoint pt : conf.wayPoints) {
                     if (pt.enabled) {
-                        int wayX = obfhub.playerXCoord() - (pt.x / (conf.netherpoints ? 8 : 1));
-                        int wayY = obfhub.playerZCoord() - (pt.z / (conf.netherpoints ? 8 : 1));
+                        double wayX = map.getPlayerX() - (pt.x / (conf.netherpoints ? 8 : 1));
+                        double wayY = map.getPlayerZ() - (pt.z / (conf.netherpoints ? 8 : 1));
                         float locate = (float) Math.toDegrees(Math.atan2(wayX, wayY));
                         double hypot = Math.sqrt((wayX * wayX) + (wayY * wayY))
                                 / (Math.pow(2, conf.zoom) / 2);
@@ -216,7 +216,7 @@ public class MapRenderer {
     }
 
     private void renderMapFull(int scWidth, int scHeight) {
-        this.q = obfhub.tex(mapcalc.map[conf.zoom]);
+        this.q = obfhub.tex(map.mapimage);
         obfhub.draw_startQuads();
         obfhub.ldraw_addVertexWithUV((scWidth + ZanMinimap.mysteriousFive) / 2 - 128,
                 (scHeight + ZanMinimap.mysteriousFive) / 2 + 128,
@@ -279,17 +279,17 @@ public class MapRenderer {
         if (!conf.hide) {
             GL11.glPushMatrix();
             GL11.glScalef(0.5f, 0.5f, 1.0f);
-            String xy = obfhub.dCoord(obfhub.playerXCoord()) + ", "
-                    + obfhub.dCoord(obfhub.playerZCoord());
+            String xy = obfhub.dCoord((int) obfhub.playerXCoord()) + ", "
+                    + obfhub.dCoord((int) obfhub.playerZCoord());
             int m = obfhub.calcStringLength(xy) / 2;
             obfhub.write(xy, scWidth * 2 - 32 * 2 - m, 146, 0xffffff);
-            xy = Integer.toString(obfhub.playerYCoord());
+            xy = Integer.toString((int) obfhub.playerYCoord());
             m = obfhub.calcStringLength(xy) / 2;
             obfhub.write(xy, scWidth * 2 - 32 * 2 - m, 156, 0xffffff);
             GL11.glPopMatrix();
         } else
-            obfhub.write("(" + obfhub.dCoord(obfhub.playerXCoord()) + ", " + obfhub.playerYCoord()
-                    + ", " + obfhub.dCoord(obfhub.playerZCoord()) + ") " + (int) this.direction
+            obfhub.write("(" + obfhub.dCoord((int) obfhub.playerXCoord()) + ", " + obfhub.playerYCoord()
+                    + ", " + obfhub.dCoord((int) obfhub.playerZCoord()) + ") " + (int) this.direction
                     + "'", 2, 10, 0xffffff);
     }
 

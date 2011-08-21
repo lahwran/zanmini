@@ -53,8 +53,8 @@ public class MapCalculator implements Runnable {
         if (conf.cavemap) {
             lm chunk = world.b(x, z);
             cmdist.setSeed((x & 0xffff) | ((z & 0xffff) << 16));
-            float dist = distance(obfhub.playerXCoord(), obfhub.playerZCoord(), x, z);
-            int y = obfhub.playerYCoord();
+            float dist = distance((int)obfhub.playerXCoord(), (int)obfhub.playerZCoord(), x, z);
+            int y = (int) obfhub.playerYCoord();
             if (dist > 5)
                 y -= (cmdist.nextInt((int) (dist)) - ((int) dist / 2));
             x &= 0xf;
@@ -175,40 +175,43 @@ public class MapCalculator implements Runnable {
         if (!obfhub.safeToRun())
             return;
         try {
-            fd data = obfhub.getWorld();
-            this.lZoom = conf.zoom;
-            int multi = (int) Math.pow(2, this.lZoom);
-            int startX = obfhub.playerXCoord();
-            int startZ = obfhub.playerZCoord();
-            this.lastX = startX;
-            this.lastZ = startZ;
-            startX -= 16 * multi;
-            startZ += 16 * multi;
-            int color24 = 0;
+            synchronized (map) {
+                fd data = obfhub.getWorld();
+                map.zoom = conf.zoom;
+                map.update(obfhub.playerXCoord(), obfhub.playerZCoord());
+                int startX = (int) (map.getPlayerX() - map.renderOff);
+                int startZ = (int) (map.getPlayerZ() - map.renderOff);
+                int color24 = 0;
 
-            for (int imageY = 0; imageY < 32 * multi; imageY++) {
-                for (int imageX = 0; imageX < 32 * multi; imageX++) {
-                    if (!obfhub.safeToRun())
-                        return;
-                    color24 = 0;
-                    boolean check = false;
-
-                    int a = (16 * multi - imageY);
-                    int c = (16 * multi - imageX);
-                    int e = (16 * multi);
-                    int f = (int) Math.sqrt(multi);
-                    if (Math.sqrt(a * a + c * c) < (e - f))
-                        check = true;
-
-                    if (check || conf.squaremap || conf.full) {
-                        color24 = shadeBlock(data, startX + imageY, startZ - imageX);
+                for (int worldX = startX; worldX < startX + map.renderSize; worldX++) {
+                    for (int worldZ = startZ; worldZ < startZ + map.renderSize; worldZ++) {
+                        if (!obfhub.safeToRun())
+                            return;
+                        color24 = shadeBlock(data, worldX, worldZ);
+                        map.setMapPixel(worldX, worldZ, color24);
                     }
-
-                    this.map[this.lZoom].setRGB(imageX, imageY, color24);
                 }
             }
         } catch (Throwable whatever) {
             whatever.printStackTrace();
+        }
+    }
+
+    /**
+     * Check if a render is necessary, and if so, do one.
+     */
+    private void tryARender() {
+        if (!obfhub.playerExists())
+            return;
+        try {
+            if (conf.enabled && !conf.hide && map.isDirty(obfhub.playerXCoord(), obfhub.playerZCoord())) {
+                mapCalc();
+                map.timer = 1;
+            }
+        } catch (RuntimeException e) {
+            throw e;
+        } finally {
+            map.timer++;
         }
     }
 
@@ -221,33 +224,17 @@ public class MapCalculator implements Runnable {
         if (obfhub.game == null)
             return;
         while (true) {
-            if (conf.threading && obfhub.playerExists()) {
-                if (conf.enabled
-                        && !conf.hide
-                        && (this.lastX != obfhub.playerXCoord()
-                                || this.lastZ != obfhub.playerZCoord() || this.timer > 300)
-                        && obfhub.safeToRun()) {
-                    try {
-                        this.mapCalc();
-                        this.timer = 1;
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-                this.timer++;
-                try {
+            try {
+                if (conf.threading) {
+                    tryARender();
                     Thread.sleep(100);
-                } catch (Exception e) {
-                    e.printStackTrace();
+                } else {
+                        synchronized(zCalc) {
+                            this.zCalc.wait(10000);
+                        }
                 }
-            } else {
-                try {
-                    synchronized(zCalc) {
-                        this.zCalc.wait(10000);
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
     }
@@ -271,10 +258,7 @@ public class MapCalculator implements Runnable {
                 zCalc.start();
             }
         } else if (!conf.threading) {
-            if (conf.enabled && !conf.hide)
-                if (this.lastX != obfhub.playerXCoord() || this.lastZ != obfhub.playerZCoord()
-                        || this.timer > 300)
-                    mapCalc();
+            tryARender();
         }
     }
 
@@ -284,39 +268,14 @@ public class MapCalculator implements Runnable {
     public Thread zCalc = new Thread(this);
 
     /**
-     * Timer used to force a map update occasionally. counts down each tick,
-     * when the timer changes to 0 a map update is forced.
-     */
-    public int timer = 0;
-
-    /**
-     * X coordinate of the player on last render
-     */
-    public int lastX = 0;
-
-    /**
-     * Z coordinate of the player on last render
-     */
-    public int lastZ = 0;
-
-    /**
-     * Last zoom level rendered at - used in case zoom changes in the middle
-     * of rendering a map frame
-     */
-    public int lZoom = 0;
-
-    /**
      * Random used to distort cave map
      */
     public Random cmdist = new Random();
 
-    /**
-     * Textures for each zoom level
-     */
-    public BufferedImage[] map = new BufferedImage[4];
-
     private Config conf;
     private ObfHub obfhub;
+
+    private Map map;
 
     /**
      * This constructor inits state, but does not start the thread.
@@ -326,10 +285,7 @@ public class MapCalculator implements Runnable {
     public MapCalculator(ZanMinimap minimap) {
         conf = minimap.conf;
         obfhub = minimap.obfhub;
-        this.map[0] = new BufferedImage(32, 32, 2);
-        this.map[1] = new BufferedImage(64, 64, 2);
-        this.map[2] = new BufferedImage(128, 128, 2);
-        this.map[3] = new BufferedImage(256, 256, 2);
+        map = minimap.map;
     }
 
     /**

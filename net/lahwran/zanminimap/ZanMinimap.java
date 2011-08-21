@@ -43,6 +43,8 @@ public class ZanMinimap {
      */
     public Menu menu;
 
+    public Map map;
+
     /**
      * Instance, mainly for things that want to plug into the minimap
      */
@@ -64,11 +66,12 @@ public class ZanMinimap {
      */
     public ZanMinimap() {
 
-        this.obfhub = new ObfHub(this);
-        this.conf = new Config(this);
-        this.mapcalc = new MapCalculator(this);
-        this.menu = new Menu(this);
-        this.renderer = new MapRenderer(this);
+        map = new Map();
+        obfhub = new ObfHub(this);
+        conf = new Config(this);
+        mapcalc = new MapCalculator(this);
+        menu = new Menu(this);
+        renderer = new MapRenderer(this);
 
         conf.initializeEverything();
         mapcalc.start();
@@ -90,7 +93,7 @@ public class ZanMinimap {
 
         int dim = obfhub.getCurrentDimension();
         if (dim != obfhub.lastdim) {
-            mapcalc.timer = 400;
+            map.timer = 400;
             conf.cavemap = dim < 0;
             conf.lightmap = true;
             conf.heightmap = !conf.cavemap;

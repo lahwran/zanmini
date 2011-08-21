@@ -127,6 +127,7 @@ public class Menu {
     private Config conf;
     private ObfHub obfhub;
     private MapCalculator mapcalc;
+    private Map map;
 
     /**
      * @param minimap minimap instance to init with
@@ -136,6 +137,7 @@ public class Menu {
         this.conf = minimap.conf;
         this.obfhub = minimap.obfhub;
         this.mapcalc = minimap.mapcalc;
+        this.map = minimap.map;
 
         for (int m = 0; m < 2; m++)
             for (int n = 0; n < 10; n++)
@@ -418,7 +420,7 @@ public class Menu {
                             this.next = 6;
                             this.way = this.inStr;
                             this.inStr = (conf.netherpoints ? "n" : "")
-                                    + Integer.toString(obfhub.playerXCoord());
+                                    + Integer.toString((int) obfhub.playerXCoord());
                         } else if (this.iMenu == 6) {
                             this.next = 7;
 
@@ -429,7 +431,7 @@ public class Menu {
                             }
 
                             this.inStr = (conf.netherpoints ? "n" : "")
-                                    + Integer.toString(obfhub.playerZCoord());
+                                    + Integer.toString((int) obfhub.playerZCoord());
                         } else {
                             this.next = 3;
 
@@ -875,7 +877,7 @@ public class Menu {
         } else
             throw new IllegalArgumentException("bad option number " + i);
         conf.saveConfig();
-        mapcalc.timer = 50000;
+        map.timer = 50000;
 
     }
 

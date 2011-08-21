@@ -128,12 +128,11 @@ public class ObfHub {
     }
 
     /**
-     * this needs to be looked up
-     * 
-     * @param g unknown
+     * Free a GL texture
+     * @param texID gl texture to free
      */
-    void glah(int g) {
-        renderEngine.a(g);
+    void deleteTexture(int texID) {
+        renderEngine.a(texID);
     }
 
     /**
@@ -334,25 +333,22 @@ public class ObfHub {
     /**
      * @return player current X coord
      */
-    int playerXCoord() {
-        double posX = this.game.h.aM;
-        return (int) (posX < 0.0D ? posX - 1 : posX);
+    double playerXCoord() {
+        return this.game.h.aM;
     }
 
     /**
      * @return player current Z coord
      */
-    int playerZCoord() {
-        double posZ = this.game.h.aO;
-        return (int) (posZ < 0.0D ? posZ - 1 : posZ);
+    double playerZCoord() {
+        return this.game.h.aO;
     }
 
     /**
      * @return player current Y coord
      */
-    int playerYCoord() {
-        double posY = this.game.h.aN;
-        return (int) posY;
+    double playerYCoord() {
+        return this.game.h.aN;
     }
 
     /**
