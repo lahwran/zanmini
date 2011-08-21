@@ -60,13 +60,20 @@ public class Map {
     public final int renderSize = 256;
 
     public final int renderOff = 128; //used instead of dividing renderSize by two
+
     /**
      * Map image to which the map is rendered to.
      */
-    public final BufferedImage mapimage;
+    private final ImageManager colorimg;
+
+    private final ImageManager heightimg;
+
+    private final ImageManager lightimg;
 
     public Map() {
-        mapimage = new BufferedImage(imageSize, imageSize, BufferedImage.TYPE_INT_ARGB);
+        colorimg = new ImageManager(imageSize, imageSize, BufferedImage.TYPE_INT_ARGB);
+        heightimg = new ImageManager(imageSize, imageSize, BufferedImage.TYPE_INT_ARGB);
+        lightimg = new ImageManager(imageSize, imageSize, BufferedImage.TYPE_INT_ARGB);
     }
 
     /**
@@ -83,10 +90,36 @@ public class Map {
             return index % arraysize;
     }
 
-    public void setMapPixel(int worldx, int worldz, int color24) {
-        int imagex = wrapIndex((int) (( -(worldz - playerZ)) + originOffsetX), imageSize);
-        int imagey = wrapIndex( (int) ((worldx - playerX) + originOffsetY), imageSize);
-        mapimage.setRGB(imagex, imagey, color24);
+    private final int toImageX(int worldz) {
+        return wrapIndex((int) (( -(worldz - playerZ)) + originOffsetX), imageSize);
+    }
+
+    private final int toImageY(int worldx) {
+        return wrapIndex( (int) ((worldx - playerX) + originOffsetY), imageSize);
+    }
+
+    public void setColorPixel(int worldx, int worldz, int color24) {
+        colorimg.setRGB(toImageX(worldz), toImageY(worldx), color24);
+    }
+
+    public void setHeightPixel(int worldx, int worldz, int height) {
+        heightimg.setRGB(toImageX(worldz), toImageY(worldx), height | height << 8 | height << 16);
+    }
+
+    public void setLightPixel(int worldx, int worldz, int light) {
+        lightimg.setRGB(toImageX(worldz), toImageY(worldx), light | light << 8 | light << 16);
+    }
+
+    public void loadColorImage(ObfHub obfhub) {
+        colorimg.loadGLImage(obfhub);
+    }
+
+    public void loadHeightImage(ObfHub obfhub) {
+        heightimg.loadGLImage(obfhub);
+    }
+
+    public void loadLightImage(ObfHub obfhub) {
+        lightimg.loadGLImage(obfhub);
     }
 
     public void update(double playerx, double playerz) {

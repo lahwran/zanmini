@@ -107,68 +107,58 @@ public class MapCalculator implements Runnable {
         //return -1;
     }
 
-    private int shadeBlock(fd world, int x, int z) {
+    private int getBlockColor(fd world, int x, int y, int z) {
         int color24 = 0;
-        int height = getBlockHeight(world, x, z);
 
         if (conf.color && !conf.cavemap) {
-            if ((world.f(x, height + 1, z) == ln.s) || (world.f(x, height + 1, z) == ln.t))
+            if ((world.f(x, y + 1, z) == ln.s) || (world.f(x, y + 1, z) == ln.t))
                 color24 = 0xffffff;
             else {
-                BlockColor col = conf.getBlockColor(world.a(x, height, z), world.e(x, height, z));
-                color24 = obfhub.getBlockTint(world, col.color, x, height, z, col.tintType);
+                BlockColor col = conf.getBlockColor(world.a(x, y, z), world.e(x, y, z));
+                color24 = obfhub.getBlockTint(world, col.color, x, y, z, col.tintType);
             }
 
         } else
             color24 = 0x808080;
 
-        if ((color24 != 0xff00ff) && (color24 != 0)) {
-            if (conf.heightmap) {
-                int i2 = height;
-                //if offsetByZloc
-                i2 -= obfhub.playerYCoord();
-                //else
-                //i2 -= 64;
-                double sc = Math.log10(Math.abs(i2) / 8.0D + 1.0D) / 1.3D;
-                int r = color24 / 0x10000;
-                int g = (color24 - r * 0x10000) / 0x100;
-                int b = (color24 - r * 0x10000 - g * 0x100);
-
-                if (i2 >= 0) {
-                    r = (int) (sc * (0xff - r)) + r;
-                    g = (int) (sc * (0xff - g)) + g;
-                    b = (int) (sc * (0xff - b)) + b;
-                } else {
-                    i2 = Math.abs(i2);
-                    r = r - (int) (sc * r);
-                    g = g - (int) (sc * g);
-                    b = b - (int) (sc * b);
-                }
-
-                color24 = r * 0x10000 + g * 0x100 + b;
-            }
-
-            int i3 = 255;
-
-            if (conf.lightmap || conf.cavemap)
-                i3 = world.a(x, height + 1, z, false) * 17;
-            int min = 32;
-            if (i3 < min) {
-                i3 = min;
-                if (conf.cavemap)
-                    color24 = 0x222222;
-            }
-            if (!conf.lightmap) {
-                i3 *= 0.5;
-                i3 += 64;
-            } else if (conf.cavemap)
-                i3 *= 1.3f;
-
-            if (i3 > 255)
-                i3 = 255;
-            color24 = i3 * 0x1000000 + color24;
-        }
         return color24;
+    }
+
+    private int getBlockHeightMap(fd world, int x, int y, int z) {
+        int height = y - 64;
+        double sc = Math.log10(Math.abs(height) / 8.0D + 1.0D) / 1.3D;
+        int result = 0x80;
+
+        if (height >= 0) {
+            result = (int) (sc * (0xff - result)) + result;
+        } else {
+            height = Math.abs(height);
+            result = result - (int) (sc * result);
+        }
+        return result;
+    }
+
+    private int getBlockLight(fd world, int x, int y, int z) {
+        int light = world.a(x, y + 1, z, false) * 17;
+        int min = 32;
+        if (light < min) {
+            light = min;
+        }
+        if (conf.cavemap) {
+            if (conf.lightmap) {
+                light *= 1.3f;
+            } else {
+                light *= 0.5;
+                light += 64;
+            }
+        }
+
+        if (light > 255)
+            light = 255;
+        else if (light < 0)
+            light = 0;
+
+        return light;
     }
 
     private void mapCalc() {
@@ -181,14 +171,16 @@ public class MapCalculator implements Runnable {
                 map.update(obfhub.playerXCoord(), obfhub.playerZCoord());
                 int startX = (int) (map.getPlayerX() - map.renderOff);
                 int startZ = (int) (map.getPlayerZ() - map.renderOff);
-                int color24 = 0;
 
                 for (int worldX = startX; worldX < startX + map.renderSize; worldX++) {
                     for (int worldZ = startZ; worldZ < startZ + map.renderSize; worldZ++) {
                         if (!obfhub.safeToRun())
                             return;
-                        color24 = shadeBlock(data, worldX, worldZ);
-                        map.setMapPixel(worldX, worldZ, color24);
+                        int worldY = getBlockHeight(data, worldX, worldZ);
+                        
+                        map.setColorPixel(worldX, worldZ, getBlockColor(data, worldX, worldY, worldZ));
+                        map.setHeightPixel(worldX, worldZ, getBlockHeightMap(data, worldX, worldY, worldZ));
+                        map.setLightPixel(worldX, worldZ, getBlockLight(data, worldX, worldY, worldZ));
                     }
                 }
             }

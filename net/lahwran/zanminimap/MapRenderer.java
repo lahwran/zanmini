@@ -11,12 +11,6 @@ import org.lwjgl.opengl.GL11;
  */
 public class MapRenderer {
 
-    /**
-     * no idea what this does yet, probably a one-length name because of zan's
-     * old obfuscation, and then his losing the source
-     */
-    public int q = 0;
-
     /** Direction you're facing */
     public float direction = 0.0f;
 
@@ -79,17 +73,15 @@ public class MapRenderer {
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 
         if (!conf.hide && !conf.full) {
-            if (this.q != 0)
-                obfhub.deleteTexture(this.q);
 
             if (conf.squaremap) {
                 if (conf.zoom == 3) {
                     GL11.glPushMatrix();
                     GL11.glScalef(0.5f, 0.5f, 1.0f);
-                    this.q = obfhub.tex(map.mapimage);
+                    map.loadColorImage(obfhub);
                     GL11.glPopMatrix();
                 } else
-                    this.q = obfhub.tex(map.mapimage);
+                    map.loadColorImage(obfhub);
 
                 obfhub.draw_startQuads();
                 this.drawOnMap(scWidth);
@@ -125,10 +117,10 @@ public class MapRenderer {
                 if (conf.zoom == 3) {
                     GL11.glPushMatrix();
                     GL11.glScalef(0.5f, 0.5f, 1.0f);
-                    this.q = obfhub.tex(map.mapimage);
+                    map.loadColorImage(obfhub);
                     GL11.glPopMatrix();
                 } else
-                    this.q = obfhub.tex(map.mapimage);
+                    map.loadColorImage(obfhub);
 
                 GL11.glTranslatef(scWidth - 32.0F, 37.0F, 0.0F);
                 GL11.glRotatef(this.direction + 90.0F, 0.0F, 0.0F, 1.0F);
@@ -216,7 +208,7 @@ public class MapRenderer {
     }
 
     private void renderMapFull(int scWidth, int scHeight) {
-        this.q = obfhub.tex(map.mapimage);
+        map.loadColorImage(obfhub);
         obfhub.draw_startQuads();
         obfhub.ldraw_addVertexWithUV((scWidth + ZanMinimap.mysteriousFive) / 2 - 128,
                 (scHeight + ZanMinimap.mysteriousFive) / 2 + 128,
