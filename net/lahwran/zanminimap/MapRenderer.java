@@ -83,16 +83,12 @@ public class MapRenderer {
                 } else
                     map.loadColorImage(obfhub);
 
-                obfhub.draw_startQuads();
                 this.drawOnMap(scWidth);
-                obfhub.draw_finish();
 
                 GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
                 try {
                     obfhub.disp(obfhub.img("/minimap.png"));
-                    obfhub.draw_startQuads();
                     this.drawOnMap(scWidth);
-                    obfhub.draw_finish();
                 } catch (Exception localException) {
                     menu.error = "error: minimap overlay not found!";
                 }
@@ -103,9 +99,7 @@ public class MapRenderer {
                     GL11.glTranslatef(scWidth - 32.0F, 37.0F, 0.0F);
                     GL11.glRotatef(-this.direction - 90.0F, 0.0F, 0.0F, 1.0F);
                     GL11.glTranslatef(-(scWidth - 32.0F), -37.0F, 0.0F);
-                    obfhub.draw_startQuads();
                     this.drawOnMap(scWidth);
-                    obfhub.draw_finish();
                 } catch (Exception localException) {
                     menu.error = "Error: minimap arrow not found!";
                 } finally {
@@ -131,9 +125,7 @@ public class MapRenderer {
                 else
                     GL11.glTranslatef(-0.5f, -0.5f, 0.0f);
 
-                obfhub.draw_startQuads();
                 this.drawOnMap(scWidth);
-                obfhub.draw_finish();
                 GL11.glPopMatrix();
                 GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
@@ -157,9 +149,7 @@ public class MapRenderer {
                                 GL11.glRotatef(-locate + this.direction + 180.0F, 0.0F, 0.0F, 1.0F);
                                 GL11.glTranslatef(-(scWidth - 32.0F), -37.0F, 0.0F);
                                 GL11.glTranslated(0.0D, -34.0D, 0.0D);
-                                obfhub.draw_startQuads();
                                 this.drawOnMap(scWidth);
-                                obfhub.draw_finish();
                             } catch (Exception localException) {
                                 menu.error = "Error: marker overlay not found!";
                             } finally {
@@ -192,9 +182,7 @@ public class MapRenderer {
                                 GL11.glTranslated(0.0D, hypot, 0.0D);
                                 GL11.glTranslatef(-(scWidth - 32.0F), -37.0F, 0.0F);
                                 GL11.glTranslated(0.0D, -hypot, 0.0D);
-                                obfhub.draw_startQuads();
                                 this.drawOnMap(scWidth);
-                                obfhub.draw_finish();
                             } catch (Exception localException) {
                                 menu.error = "Error: waypoint overlay not found!";
                             } finally {
@@ -288,19 +276,22 @@ public class MapRenderer {
     private void drawRound(int paramInt1) {
         try {
             obfhub.disp(obfhub.img("/roundmap.png"));
-            obfhub.draw_startQuads();
             this.drawOnMap(paramInt1);
-            obfhub.draw_finish();
         } catch (Exception localException) {
             menu.error = "Error: minimap overlay not found!";
         }
     }
 
     private void drawOnMap(int paramInt1) {
-        obfhub.ldraw_addVertexWithUV(paramInt1 - 64.0D, 64.0D + ZanMinimap.mysteriousFivePointO, 1.0D, 0.0D, 1.0D);
-        obfhub.ldraw_addVertexWithUV(paramInt1, 64.0D + ZanMinimap.mysteriousFivePointO, 1.0D, 1.0D, 1.0D);
-        obfhub.ldraw_addVertexWithUV(paramInt1, ZanMinimap.mysteriousFivePointO, 1.0D, 1.0D, 0.0D);
-        obfhub.ldraw_addVertexWithUV(paramInt1 - 64.0D, ZanMinimap.mysteriousFivePointO, 1.0D, 0.0D, 0.0D);
+        GL11.glPushMatrix();
+        GL11.glTranslatef(paramInt1, 0, 0);
+        obfhub.draw_startQuads();
+        obfhub.ldraw_addVertexWithUV(-64.0D, 64.0D + ZanMinimap.mysteriousFivePointO, 1.0D, 0.0D, 1.0D);
+        obfhub.ldraw_addVertexWithUV(0, 64.0D + ZanMinimap.mysteriousFivePointO, 1.0D, 1.0D, 1.0D);
+        obfhub.ldraw_addVertexWithUV(0, ZanMinimap.mysteriousFivePointO, 1.0D, 1.0D, 0.0D);
+        obfhub.ldraw_addVertexWithUV(- 64.0D, ZanMinimap.mysteriousFivePointO, 1.0D, 0.0D, 0.0D);
+        obfhub.draw_finish();
+        GL11.glPopMatrix();
     }
 
     private void drawDirections(int scWidth) {
