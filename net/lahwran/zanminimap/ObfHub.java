@@ -9,16 +9,7 @@ import java.lang.reflect.Field;
 
 import org.lwjgl.input.Mouse;
 
-import deobf.ch;
-import deobf.da;
-import deobf.ei;
-import deobf.fd;
-import deobf.ji;
-import deobf.nw;
-import deobf.oz;
-import deobf.qh;
-import deobf.qq;
-import deobf.sj;
+import deobf.*;
 
 import net.minecraft.client.Minecraft;
 
@@ -41,17 +32,17 @@ public class ObfHub {
     /**
      * Tesselator
      */
-    public nw lDraw = nw.a;
+    public xe lDraw = xe.a;
 
     /**
-     * Font renderer
+     * FontRenderer
      */
-    public sj lang;
+    public kh lang;
 
     /**
-     * Render texture
+     * RenderEngine
      */
-    public ji renderEngine;
+    public ur renderEngine;
 
     private ZanMinimap minimap;
 
@@ -78,13 +69,13 @@ public class ObfHub {
      */
     String getMapName() {
         try {
-            fd world = getWorld();
+            rv world = getWorld();
             Class<?> worldclass = world.getClass();
             Field worlddatafield = null;
             while (true) { //
 
                 try {
-                    worlddatafield = worldclass.getDeclaredField("x");
+                    worlddatafield = worldclass.getDeclaredField("C");
                     break;
                 } catch (NoSuchFieldException e) {
                     worldclass = worldclass.getSuperclass();
@@ -95,9 +86,9 @@ public class ObfHub {
                 return null;
             worlddatafield.setAccessible(true);
 
-            ei worldata;
+            rl worldata;
 
-            worldata = (ei) worlddatafield.get(world);
+            worldata = (rl) worlddatafield.get(world);
             return worldata.j();
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -110,7 +101,7 @@ public class ObfHub {
      * @return server address
      */
     String getServerName() {
-        return game.z.C;
+        return game.z.F;
     }
 
     /**
@@ -215,7 +206,7 @@ public class ObfHub {
      * @return true if showing GuiGameOver
      */
     boolean isGameOver() {
-        return getMenu() instanceof ch;
+        return getMenu() instanceof qg;
     }
 
     /**
@@ -224,7 +215,7 @@ public class ObfHub {
      * @return true if showing GuiConflictWarning
      */
     boolean isConflictWarning() {
-        return getMenu() instanceof qh;
+        return getMenu() instanceof yw;
     }
 
     /**
@@ -258,7 +249,7 @@ public class ObfHub {
      * @return scaled screen size
      */
     int[] getScreenSize() {
-        qq scSize = new qq(game.z, game.d, game.e);
+        za scSize = new za(game.z, game.d, game.e);
         return new int[] { scSize.a(), scSize.b() };
     }
 
@@ -267,7 +258,7 @@ public class ObfHub {
      * drawing our menu, minecraft doesn't try to do menu-related stuff
      */
     void showPlaceholderGui() {
-        this.game.a(new da());
+        this.game.a(new qr());
     }
 
     /**
@@ -276,7 +267,7 @@ public class ObfHub {
      * @return true if showing the ingame menu
      */
     boolean isIngameMenuUp() {
-        return this.game.r instanceof oz;
+        return this.game.r instanceof in;
     }
 
     /**
@@ -306,7 +297,7 @@ public class ObfHub {
     int getCurrentDimension() {
         if (!playerExists())
             return lastdim;
-        return game.h.m;
+        return game.h.aE;
     }
 
     /**
@@ -335,7 +326,7 @@ public class ObfHub {
      * @return player current X coord
      */
     int playerXCoord() {
-        double posX = this.game.h.aM;
+        double posX = this.game.h.o;
         return (int) (posX < 0.0D ? posX - 1 : posX);
     }
 
@@ -343,7 +334,7 @@ public class ObfHub {
      * @return player current Z coord
      */
     int playerZCoord() {
-        double posZ = this.game.h.aO;
+        double posZ = this.game.h.q;
         return (int) (posZ < 0.0D ? posZ - 1 : posZ);
     }
 
@@ -351,7 +342,7 @@ public class ObfHub {
      * @return player current Y coord
      */
     int playerYCoord() {
-        double posY = this.game.h.aN;
+        double posY = this.game.h.p;
         return (int) posY;
     }
 
@@ -359,7 +350,7 @@ public class ObfHub {
      * @return player angle
      */
     float playerAngle() {
-        float rotationYaw = this.game.h.aS;
+        float rotationYaw = this.game.h.u;
         return rotationYaw;
     }
 
@@ -412,7 +403,7 @@ public class ObfHub {
      * 
      * @return world instance
      */
-    fd getWorld() {
+    rv getWorld() {
         return game.f;
     }
 
@@ -438,7 +429,7 @@ public class ObfHub {
      * @param ttype unused
      * @return original color
      */
-    int getBlockTint(fd world, int original, int x, int y, int z, TintType ttype) {
+    int getBlockTint(rv world, int original, int x, int y, int z, TintType ttype) {
         /*if (true)*/return original; //blarg :<
         /*double temperature = 0.0;
         double humidity = 0.0;

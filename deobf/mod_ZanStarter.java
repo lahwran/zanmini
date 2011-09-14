@@ -15,7 +15,7 @@ public class mod_ZanStarter extends BaseMod {
     public mod_ZanStarter() {
         boolean needmodloader = true;
         try {
-            uq.class.getDeclaredField("minimap");
+            abj.class.getDeclaredField("zanminimap");
             needmodloader = false;
             System.out.println("ZanMinimap: found modloader and GuiIngame hook: using GuiIngame hook");
         } catch (SecurityException e) {

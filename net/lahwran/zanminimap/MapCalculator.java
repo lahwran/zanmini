@@ -6,9 +6,10 @@ package net.lahwran.zanminimap;
 import java.awt.image.BufferedImage;
 import java.util.Random;
 
-import deobf.fd;
+import deobf.rv;
 import deobf.lm;
-import deobf.ln;
+import deobf.vy;
+import deobf.wa;
 
 /**
  * @author lahwran
@@ -35,7 +36,7 @@ public class MapCalculator implements Runnable {
         return res;
     }
 
-    private final boolean blockIsSolid(lm chunk, int x, int y, int z) {
+    private final boolean blockIsSolid(vy chunk, int x, int y, int z) {
         if (y > 127)
             return false;
         if (y < 0)
@@ -49,9 +50,9 @@ public class MapCalculator implements Runnable {
         return (float) Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
     }
 
-    private final int getBlockHeight(fd world, int x, int z) {
+    private final int getBlockHeight(rv world, int x, int z) {
         if (conf.cavemap) {
-            lm chunk = world.b(x, z);
+            vy chunk = world.b(x, z);
             cmdist.setSeed((x & 0xffff) | ((z & 0xffff) << 16));
             float dist = distance(obfhub.playerXCoord(), obfhub.playerZCoord(), x, z);
             int y = obfhub.playerYCoord();
@@ -107,15 +108,17 @@ public class MapCalculator implements Runnable {
         //return -1;
     }
 
-    private int shadeBlock(fd world, int x, int z) {
+    private int shadeBlock(rv world, int x, int z) {
         int color24 = 0;
         int height = getBlockHeight(world, x, z);
 
         if (conf.color && !conf.cavemap) {
-            if ((world.f(x, height + 1, z) == ln.s) || (world.f(x, height + 1, z) == ln.t))
+            int id = world.a(x, height, z);
+            int meta = world.e(x, height, z);
+            if (id == 78 || id == 79)
                 color24 = 0xffffff;
             else {
-                BlockColor col = conf.getBlockColor(world.a(x, height, z), world.e(x, height, z));
+                BlockColor col = conf.getBlockColor(id, meta);
                 color24 = obfhub.getBlockTint(world, col.color, x, height, z, col.tintType);
             }
 
@@ -175,7 +178,7 @@ public class MapCalculator implements Runnable {
         if (!obfhub.safeToRun())
             return;
         try {
-            fd data = obfhub.getWorld();
+            rv data = obfhub.getWorld();
             this.lZoom = conf.zoom;
             int multi = (int) Math.pow(2, this.lZoom);
             int startX = obfhub.playerXCoord();
