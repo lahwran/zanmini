@@ -55,7 +55,7 @@ public class Map {
 
     public int imageSize = 276;
 
-    public int updatedist = 18;
+    public int updatedist = 4;
 
     public final int renderSize = 256;
 
@@ -90,11 +90,11 @@ public class Map {
             return index % arraysize;
     }
 
-    private final int toImageX(int worldz) {
+    public final int toImageX(int worldz) {
         return wrapIndex((int) (( -(worldz - playerZ)) + originOffsetX), imageSize);
     }
 
-    private final int toImageY(int worldx) {
+    public final int toImageY(int worldx) {
         return wrapIndex( (int) ((worldx - playerX) + originOffsetY), imageSize);
     }
 
@@ -139,5 +139,24 @@ public class Map {
 
     public boolean isDirty(double newPlayerX, double newPlayerZ) {
         return Math.abs(playerX - newPlayerX) > updatedist || Math.abs(playerZ - newPlayerZ) > updatedist || timer > 300;
+    }
+
+    public float getRenderScale() {
+        float displaydist = (float) (Math.pow(2, zoom) * 32);
+        return (float)imageSize / displaydist;
+    }
+
+    /**
+     * @return
+     */
+    public double getCurrOffsetX(double playerZ) {
+        double wrapped = wrapIndex(((int) -playerZ), imageSize);
+        double leftover = 0;//playerZ - ((double)(int)playerZ);
+        return (wrapped+leftover)/2;
+    }
+    public double getCurrOffsetY(double playerX) {
+        double wrapped = wrapIndex(((int) playerX), imageSize);
+        double leftover = 0;//playerX - ((double)(int)playerX);
+        return (wrapped+leftover)/2;
     }
 }

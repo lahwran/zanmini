@@ -5,6 +5,8 @@ package net.lahwran.zanminimap;
 
 import java.awt.image.BufferedImage;
 
+import org.lwjgl.opengl.GL11;
+
 /**
  * @author lahwran
  *
@@ -34,10 +36,12 @@ public class ImageManager {
     }
 
     public void loadGLImage(ObfHub obfhub) {
-        if (hasGLImage) {
+        if (hasGLImage && hasChanged) {
             obfhub.deleteTexture(glImage);
         }
+        GL11.glPushMatrix();
         glImage = obfhub.tex(image);
+        GL11.glPopMatrix();
         hasGLImage = true;
     }
 }

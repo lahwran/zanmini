@@ -53,8 +53,8 @@ public class MapCalculator implements Runnable {
         if (conf.cavemap) {
             lm chunk = world.b(x, z);
             cmdist.setSeed((x & 0xffff) | ((z & 0xffff) << 16));
-            float dist = distance((int)obfhub.playerXCoord(), (int)obfhub.playerZCoord(), x, z);
-            int y = (int) obfhub.playerYCoord();
+            float dist = distance((int)obfhub.getPlayerX(), (int)obfhub.getPlayerZ(), x, z);
+            int y = (int) obfhub.getPlayerY();
             if (dist > 5)
                 y -= (cmdist.nextInt((int) (dist)) - ((int) dist / 2));
             x &= 0xf;
@@ -111,6 +111,8 @@ public class MapCalculator implements Runnable {
         int color24 = 0;
 
         if (conf.color && !conf.cavemap) {
+            if (x == (int)map.getPlayerX() && z == (int)map.getPlayerZ())
+                return 0xff0000;
             if ((world.f(x, y + 1, z) == ln.s) || (world.f(x, y + 1, z) == ln.t))
                 color24 = 0xffffff;
             else {
@@ -168,7 +170,7 @@ public class MapCalculator implements Runnable {
             synchronized (map) {
                 fd data = obfhub.getWorld();
                 map.zoom = conf.zoom;
-                map.update(obfhub.playerXCoord(), obfhub.playerZCoord());
+                map.update(obfhub.getPlayerX(), obfhub.getPlayerZ());
                 int startX = (int) (map.getPlayerX() - map.renderOff);
                 int startZ = (int) (map.getPlayerZ() - map.renderOff);
 
@@ -196,7 +198,7 @@ public class MapCalculator implements Runnable {
         if (!obfhub.playerExists())
             return;
         try {
-            if (conf.enabled && !conf.hide && map.isDirty(obfhub.playerXCoord(), obfhub.playerZCoord())) {
+            if (conf.enabled && !conf.hide && map.isDirty(obfhub.getPlayerX(), obfhub.getPlayerZ())) {
                 mapCalc();
                 map.timer = 1;
             }

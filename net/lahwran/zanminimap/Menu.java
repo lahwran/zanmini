@@ -257,8 +257,8 @@ public class Menu {
         }
 
         int title = obfhub.calcStringLength(head);
-        int centerX = (int) ((scWidth + ZanMinimap.mysteriousFive) / 2.0D);
-        int centerY = (int) ((scHeight + ZanMinimap.mysteriousFive) / 2.0D);
+        int centerX = (int) ((scWidth + ZanMinimap.heightOffset) / 2.0D);
+        int centerY = (int) ((scHeight + ZanMinimap.heightOffset) / 2.0D);
         String hide = "§7Press §F" + Keyboard.getKeyName(conf.zoomKey) + "§7 to hide.";
         int footer = obfhub.calcStringLength(hide);
         GL11.glDisable(3553);
@@ -317,7 +317,7 @@ public class Menu {
 
             obfhub.write(hide,
                     centerX - footer / 2,
-                    ((scHeight + ZanMinimap.mysteriousFive) / 2 + (height - 1) * 10 / 2 + 11),
+                    ((scHeight + ZanMinimap.heightOffset) / 2 + (height - 1) * 10 / 2 + 11),
                     0xffffff);
         } else {
             if (this.iMenu == 2) {
@@ -420,7 +420,7 @@ public class Menu {
                             this.next = 6;
                             this.way = this.inStr;
                             this.inStr = (conf.netherpoints ? "n" : "")
-                                    + Integer.toString((int) obfhub.playerXCoord());
+                                    + Integer.toString((int) obfhub.getPlayerX());
                         } else if (this.iMenu == 6) {
                             this.next = 7;
 
@@ -431,7 +431,7 @@ public class Menu {
                             }
 
                             this.inStr = (conf.netherpoints ? "n" : "")
-                                    + Integer.toString((int) obfhub.playerZCoord());
+                                    + Integer.toString((int) obfhub.getPlayerZ());
                         } else {
                             this.next = 3;
 
@@ -497,7 +497,7 @@ public class Menu {
 
             if (this.iMenu == 6) {
                 try {
-                    if (toInt(this.inStr) == obfhub.playerXCoord() * (conf.netherpoints ? 8 : 1))
+                    if (toInt(this.inStr) == obfhub.getPlayerX() * (conf.netherpoints ? 8 : 1))
                         obfhub.write("(Current)",
                                 (int) leftX + border + obfhub.calcStringLength(this.inStr) + 5,
                                 (int) topY + border,
@@ -507,7 +507,7 @@ public class Menu {
                 }
             } else if (this.iMenu == 7) {
                 try {
-                    if (toInt(this.inStr) == obfhub.playerZCoord() * (conf.netherpoints ? 8 : 1))
+                    if (toInt(this.inStr) == obfhub.getPlayerZ() * (conf.netherpoints ? 8 : 1))
                         obfhub.write("(Current)",
                                 (int) leftX + border + obfhub.calcStringLength(this.inStr) + 5,
                                 (int) topY + border,

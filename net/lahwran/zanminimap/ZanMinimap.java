@@ -45,6 +45,8 @@ public class ZanMinimap {
 
     public Map map;
 
+    public TextureManager texman;
+
     /**
      * Instance, mainly for things that want to plug into the minimap
      */
@@ -55,12 +57,11 @@ public class ZanMinimap {
      * five for no apparent reason. this was a test to see what changing it did.
      * it screwed up rendering pretty bad to change it.
      */
-    public static final double mysteriousFivePointO = 5.0d;
+    public static final double mysteriousFivePointO = 0.0d;
     /**
      * @see mysteriousFivePointO
      */
-    public static final int mysteriousFive = (int)mysteriousFivePointO;
-
+    public static final int heightOffset = (int)mysteriousFivePointO;
     /**
      * 
      */
@@ -68,6 +69,7 @@ public class ZanMinimap {
 
         map = new Map();
         obfhub = new ObfHub(this);
+        texman = new TextureManager(this);
         conf = new Config(this);
         mapcalc = new MapCalculator(this);
         menu = new Menu(this);
@@ -133,8 +135,8 @@ public class ZanMinimap {
         else
             conf.enabled = true;
 
-        scWidth -= ZanMinimap.mysteriousFive;
-        scHeight -= ZanMinimap.mysteriousFive;
+        scWidth -= ZanMinimap.heightOffset;
+        scHeight -= ZanMinimap.heightOffset;
 
         obfhub.onRenderTick();
         mapcalc.onRenderTick();
@@ -142,4 +144,5 @@ public class ZanMinimap {
         renderer.onRenderTick(scWidth, scHeight);
     }
 
+    
 }

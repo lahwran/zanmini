@@ -809,7 +809,7 @@ public class Config {
                     minimap.menu.error = "Zoom Level: (4.0x)";
                 }
             }
-            minimap.map.timer = 500;
+            minimap.map.zoom = zoom;
         }
         minimap.menu.fudge = 20;
     }

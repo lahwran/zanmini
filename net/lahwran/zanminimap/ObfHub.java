@@ -136,19 +136,6 @@ public class ObfHub {
     }
 
     /**
-     * Add a vertex and a corrosponding UV (int x/y version)
-     * 
-     * @param x vertex X coord
-     * @param y vertex Y coord
-     * @param z vertex Z coord
-     * @param u texture U coord
-     * @param v texture V coord
-     */
-    void ldraw_addVertexWithUV(int x, int y, double z, double u, double v) {
-        ldraw_addVertexWithUV((double) x, (double) y, z, u, v);
-    }
-
-    /**
      * Add a vertex
      * 
      * @param x vertex X coord
@@ -179,7 +166,7 @@ public class ObfHub {
      * @return mouse X
      */
     int getMouseX(int scWidth) {
-        return Mouse.getX() * (scWidth + ZanMinimap.mysteriousFive) / game.d;
+        return Mouse.getX() * (scWidth + ZanMinimap.heightOffset) / game.d;
     }
 
     /**
@@ -189,7 +176,7 @@ public class ObfHub {
      * @return mouse Y
      */
     int getMouseY(int scHeight) {
-        return (scHeight + ZanMinimap.mysteriousFive) - Mouse.getY() * (scHeight + ZanMinimap.mysteriousFive) / this.game.e - 1;
+        return (scHeight + ZanMinimap.heightOffset) - Mouse.getY() * (scHeight + ZanMinimap.heightOffset) / this.game.e - 1;
     }
 
     /**
@@ -333,28 +320,28 @@ public class ObfHub {
     /**
      * @return player current X coord
      */
-    double playerXCoord() {
+    double getPlayerX() {
         return this.game.h.aM;
     }
 
     /**
      * @return player current Z coord
      */
-    double playerZCoord() {
+    double getPlayerZ() {
         return this.game.h.aO;
     }
 
     /**
      * @return player current Y coord
      */
-    double playerYCoord() {
+    double getPlayerY() {
         return this.game.h.aN;
     }
 
     /**
      * @return player angle
      */
-    float playerAngle() {
+    float getPlayerYaw() {
         float rotationYaw = this.game.h.aS;
         return rotationYaw;
     }
