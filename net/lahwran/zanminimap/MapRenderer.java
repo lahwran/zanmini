@@ -97,7 +97,7 @@ public class MapRenderer {
 
                 GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
                 try {
-                    obfhub.disp(obfhub.img("/minimap.png"));
+                    obfhub.disp(obfhub.img("/lahwran/minimap.png"));
                     obfhub.draw_startQuads();
                     this.drawOnMap(scWidth);
                     obfhub.draw_finish();
@@ -105,9 +105,75 @@ public class MapRenderer {
                     menu.error = "error: minimap overlay not found!";
                 }
 
+                for (Waypoint pt : conf.wayPoints) {
+                    if (pt.enabled) {
+                        int wayX = obfhub.playerXCoord() - (pt.x / (conf.netherpoints ? 8 : 1));
+                        int wayY = obfhub.playerZCoord() - (pt.z / (conf.netherpoints ? 8 : 1));
+                        float locate = (float) Math.toDegrees(Math.atan2(wayX, wayY));
+                        double hypot = Math.sqrt((wayX * wayX) + (wayY * wayY))
+                                / (Math.pow(2, conf.zoom) / 2);
+
+                        if (!(Math.abs(wayX / (Math.pow(2, conf.zoom) / 2)) < 29.0D && Math.abs(wayY / (Math.pow(2, conf.zoom) / 2)) < 29.0D)) {
+                            try {
+                                GL11.glPushMatrix();
+                                GL11.glColor3f(pt.red, pt.green, pt.blue);
+                                obfhub.disp(obfhub.img("/lahwran/marker.png"));
+                                GL11.glTranslatef(scWidth - 32.0F, 37.0F, 0.0F);
+                                GL11.glRotatef(-locate +  90.0F, 0.0F, 0.0F, 1.0F);
+                                GL11.glTranslatef(-(scWidth - 32.0F), -37.0F, 0.0F);
+                                GL11.glTranslated(0.0D, -34.0D, 0.0D);
+                                obfhub.draw_startQuads();
+                                this.drawOnMap(scWidth);
+                                obfhub.draw_finish();
+                            } catch (Exception localException) {
+                                menu.error = "Error: marker overlay not found!";
+                            } finally {
+                                GL11.glPopMatrix();
+                            }
+                        }
+                    }
+                }
+
+                for (Waypoint pt : conf.wayPoints) {
+                    if (pt.enabled) {
+                        double wayX = (obfhub.playerXCoord() - (pt.x / (conf.netherpoints ? 8 : 1))) / (Math.pow(2, conf.zoom) / 2);
+                        double wayY = (obfhub.playerZCoord() - (pt.z / (conf.netherpoints ? 8 : 1))) / (Math.pow(2, conf.zoom) / 2);
+                        //float locate = (float) Math.toDegrees(Math.atan2(wayX, wayY));
+                        //double hypot = Math.sqrt((wayX * wayX) + (wayY * wayY))
+                        //        / (Math.pow(2, conf.zoom) / 2);
+
+                        if (Math.abs(wayX) < 29.0D && Math.abs(wayY) < 29.0D ) {
+                            try {
+                                GL11.glPushMatrix();
+                                GL11.glColor3f(pt.red, pt.green, pt.blue);
+                                obfhub.disp(obfhub.img("/lahwran/waypoint.png"));
+                                //GL11.glTranslatef(scWidth - 32.0F, 37.0F, 0.0F);
+                                //GL11.glRotatef(-locate + this.direction + 180.0F, 0.0F, 0.0F, 1.0F);
+                                //GL11.glTranslated(0.0D, -hypot, 0.0D);
+                                //GL11.glRotatef(-(-locate + this.direction + 180.0F),
+                                //        0.0F,
+                                //        0.0F,
+                                //        1.0F);
+                                //GL11.glTranslated(0.0D, hypot, 0.0D);
+                                //GL11.glTranslatef(-(scWidth - 32.0F), -37.0F, 0.0F);
+                                //GL11.glTranslated(0.0D, -hypot, 0.0D);
+                                GL11.glTranslated(wayY, -wayX, 0);
+                                obfhub.draw_startQuads();
+                                this.drawOnMap(scWidth);
+                                obfhub.draw_finish();
+                            } catch (Exception localException) {
+                                menu.error = "Error: waypoint overlay not found!";
+                            } finally {
+                                GL11.glPopMatrix();
+                            }
+                        }
+                    }
+                }
+
+                GL11.glColor3f(1, 1, 1);
                 try {
                     GL11.glPushMatrix();
-                    obfhub.disp(obfhub.img("/mmarrow.png"));
+                    obfhub.disp(obfhub.img("/lahwran/mmarrow.png"));
                     GL11.glTranslatef(scWidth - 32.0F, 37.0F, 0.0F);
                     GL11.glRotatef(-this.direction - 90.0F, 0.0F, 0.0F, 1.0F);
                     GL11.glTranslatef(-(scWidth - 32.0F), -37.0F, 0.0F);
@@ -160,7 +226,7 @@ public class MapRenderer {
                             try {
                                 GL11.glPushMatrix();
                                 GL11.glColor3f(pt.red, pt.green, pt.blue);
-                                obfhub.disp(obfhub.img("/marker.png"));
+                                obfhub.disp(obfhub.img("/lahwran/marker.png"));
                                 GL11.glTranslatef(scWidth - 32.0F, 37.0F, 0.0F);
                                 GL11.glRotatef(-locate + this.direction + 180.0F, 0.0F, 0.0F, 1.0F);
                                 GL11.glTranslatef(-(scWidth - 32.0F), -37.0F, 0.0F);
@@ -189,7 +255,7 @@ public class MapRenderer {
                             try {
                                 GL11.glPushMatrix();
                                 GL11.glColor3f(pt.red, pt.green, pt.blue);
-                                obfhub.disp(obfhub.img("/waypoint.png"));
+                                obfhub.disp(obfhub.img("/lahwran/waypoint.png"));
                                 GL11.glTranslatef(scWidth - 32.0F, 37.0F, 0.0F);
                                 GL11.glRotatef(-locate + this.direction + 180.0F, 0.0F, 0.0F, 1.0F);
                                 GL11.glTranslated(0.0D, -hypot, 0.0D);
@@ -242,7 +308,7 @@ public class MapRenderer {
 
         try {
             GL11.glPushMatrix();
-            obfhub.disp(obfhub.img("/mmarrow.png"));
+            obfhub.disp(obfhub.img("/lahwran/mmarrow.png"));
             GL11.glTranslatef((scWidth + 5) / 2, (scHeight + 5) / 2, 0.0F);
             GL11.glRotatef(-this.direction - 90.0F, 0.0F, 0.0F, 1.0F);
             GL11.glTranslatef(-((scWidth + 5) / 2), -((scHeight + 5) / 2), 0.0F);
@@ -295,7 +361,7 @@ public class MapRenderer {
 
     private void drawRound(int paramInt1) {
         try {
-            obfhub.disp(obfhub.img("/roundmap.png"));
+            obfhub.disp(obfhub.img("/lahwran/roundmap.png"));
             obfhub.draw_startQuads();
             this.drawOnMap(paramInt1);
             obfhub.draw_finish();

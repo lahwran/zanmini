@@ -259,7 +259,7 @@ public class abj extends lf {
             if(Minecraft.I > 0L)
                 GL11.glTranslatef(0.0F, 32F, 0.0F);
 
-            kh1.a((new StringBuilder()).append("Minecraft Beta 1.8 (").append(h.L).append(")").toString(), 2, 2, 0xffffff);
+            kh1.a((new StringBuilder()).append("Minecraft Beta 1.8.1 (").append(h.L).append(")").toString(), 2, 2, 0xffffff);
             kh1.a(h.o(), 2, 12, 0xffffff);
             kh1.a(h.p(), 2, 22, 0xffffff);
             kh1.a(h.r(), 2, 32, 0xffffff);
@@ -279,7 +279,7 @@ public class abj extends lf {
             b(kh1, (new StringBuilder()).append("Seed: ").append(h.f.s()).toString(), 2, 104, 0xe0e0e0);
             GL11.glPopMatrix();
         } else {
-            kh1.a("Minecraft Beta 1.8", 2, 2, 0xffffff);
+            kh1.a("Minecraft Beta 1.8.1", 2, 2, 0xffffff);
         }
 
         if(k > 0) {

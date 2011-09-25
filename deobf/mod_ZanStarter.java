@@ -33,7 +33,7 @@ public class mod_ZanStarter extends BaseMod {
 
     public boolean OnTickInGame(Minecraft mc) {
         this.minimap.onRenderTick(mc);
-        return false;
+        return true;
     }
 
     @Override

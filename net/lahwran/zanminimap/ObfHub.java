@@ -6,6 +6,7 @@ package net.lahwran.zanminimap;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.lang.reflect.Field;
+import java.net.Socket;
 
 import org.lwjgl.input.Mouse;
 
@@ -44,6 +45,16 @@ public class ObfHub {
      */
     public ur renderEngine;
 
+    /**
+     * Last observed world.
+     */
+    public rv lastworld;
+
+    /**
+     * last observed world name.
+     */
+    public String lastworldname;
+
     private ZanMinimap minimap;
 
     /**
@@ -69,8 +80,7 @@ public class ObfHub {
      */
     String getMapName() {
         try {
-            rv world = getWorld();
-            Class<?> worldclass = world.getClass();
+            Class<?> worldclass = getWorld().getClass();
             Field worlddatafield = null;
             while (true) { //
 
@@ -88,7 +98,7 @@ public class ObfHub {
 
             rl worldata;
 
-            worldata = (rl) worlddatafield.get(world);
+            worldata = (rl) worlddatafield.get(getWorld());
             return worldata.j();
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -101,7 +111,24 @@ public class ObfHub {
      * @return server address
      */
     String getServerName() {
-        return game.z.F;
+        wt netserverhandler = game.s();
+        if (netserverhandler == null)
+            return "no server";
+        try {
+            Field field1 = wt.class.getDeclaredField("g");
+            field1.setAccessible(true);
+            Field field2 = iq.class.getDeclaredField("h");
+            field2.setAccessible(true);
+
+            iq value2 = (iq) field1.get(netserverhandler);
+            if (value2 == null)
+                return "no server";
+
+            Socket socket = (Socket) field2.get(value2);
+            return socket.getInetAddress().getHostName() + (socket.getPort() == 25565 ? "" : "_"+socket.getPort());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -520,12 +547,15 @@ public class ObfHub {
      * @return worldname
      */
     public String getWorldName() {
+        if (lastworld == getWorld())
+            return lastworldname;
+        lastworld = getWorld();
         String worldname = getMapName();
         if (worldname.equals("MpServer")) {
-            //This removes the port
-            String[] split = getServerName().toLowerCase().split(":");
-            worldname = split[0];
+            worldname = getServerName().toLowerCase();
         }
+        System.out.println("World name: "+worldname);
+        lastworldname = worldname;
         return worldname;
     }
 
